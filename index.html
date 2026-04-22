@@ -307,6 +307,165 @@
     .client-card { border: 1px solid rgba(255,255,255,0.1); background: #0b0b0b; padding: 14px; border-radius: 4px; display: grid; gap: 7px; }
     .appointment { border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid var(--gold); padding: 14px; border-radius: 4px; background: #0b0b0b; }
     .appointment strong { display: block; margin-bottom: 6px; }
+    .app-agenda {
+      background: #070707;
+      border: 1px solid rgba(181,154,102,0.22);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .app-top {
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0d0d0d;
+    }
+    .app-top strong { text-align: center; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
+    .round-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #121212;
+      border: 1px solid rgba(181,154,102,0.25);
+      color: var(--gold-2);
+      font-size: 1.2rem;
+    }
+    .week-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 14px 16px 12px;
+      background: #090909;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .day-pill {
+      display: grid;
+      gap: 7px;
+      place-items: center;
+      min-height: 58px;
+      border-radius: 7px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .day-pill span { font-size: 0.72rem; text-transform: uppercase; font-weight: 800; }
+    .day-pill strong { font-size: 1rem; color: var(--ink); }
+    .day-pill.active { background: var(--gold); border-color: var(--gold); color: #111; }
+    .day-pill.active strong { color: #111; }
+    .barber-strip {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 16px;
+      background: #060606;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .barber-pill {
+      min-width: 104px;
+      display: grid;
+      gap: 8px;
+      place-items: center;
+      color: var(--muted);
+    }
+    .barber-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #171717;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--gold-2);
+      font-weight: 900;
+    }
+    .barber-pill.active {
+      color: var(--ink);
+    }
+    .barber-pill.active .barber-avatar {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
+    }
+    .barber-pill em {
+      font-style: normal;
+      min-width: 78px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.05);
+    }
+    .barber-pill.active em { background: #07131d; color: var(--gold-2); border: 1px solid rgba(181,154,102,0.3); }
+    .timeline {
+      position: relative;
+      padding: 14px 16px 18px;
+      background:
+        linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px) 0 54px / 100% 72px,
+        #050505;
+      min-height: 460px;
+    }
+    .time-row {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      min-height: 72px;
+      color: #81786f;
+      font-size: 0.78rem;
+    }
+    .time-row > span { padding-top: 3px; }
+    .timeline-event {
+      margin: 0 0 10px;
+      border-radius: 7px;
+      padding: 12px 14px;
+      border-left: 5px solid var(--gold);
+      background: rgba(181,154,102,0.18);
+      border-top: 1px solid rgba(181,154,102,0.24);
+      border-right: 1px solid rgba(181,154,102,0.16);
+      border-bottom: 1px solid rgba(181,154,102,0.16);
+      color: var(--ink);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+    }
+    .timeline-event.done { background: rgba(117,213,154,0.12); border-left-color: var(--ok); }
+    .timeline-event.canceled { background: rgba(255,125,107,0.12); border-left-color: var(--danger); opacity: 0.72; }
+    .timeline-event small { display: block; color: var(--gold-2); margin-bottom: 4px; font-weight: 800; }
+    .timeline-empty { margin: 16px 0 0 64px; color: var(--muted); }
+    .app-bottom {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      min-height: 72px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: #0b0b0b;
+    }
+    .bottom-tab {
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      background: transparent;
+    }
+    .bottom-tab span { font-size: 1.4rem; line-height: 1; }
+    .bottom-tab.active { color: var(--gold-2); }
+    .floating-add {
+      position: absolute;
+      right: 22px;
+      bottom: 86px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--gold);
+      color: #111;
+      font-size: 2rem;
+      font-weight: 600;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.48);
+    }
     .schedule-table { display: grid; gap: 10px; }
     .day-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; align-items: start; }
     .chips { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -501,17 +660,26 @@
         <div class="message" id="admin-message"></div>
 
         <div id="tab-dashboard" class="tab-panel">
-          <div class="metric-grid" id="metric-grid"></div>
-          <div class="admin-grid">
-            <div class="admin-card">
-              <h3>Proximos horarios</h3>
-              <div class="list" id="next-appointments"></div>
+          <div class="app-agenda">
+            <div class="app-top">
+              <button class="round-icon" id="agenda-prev-week" type="button">‹</button>
+              <strong id="agenda-month-label">Agenda</strong>
+              <button class="round-icon" id="agenda-next-week" type="button">›</button>
             </div>
-            <div class="admin-card">
-              <h3>Top clientes</h3>
-              <div class="list" id="top-clients"></div>
+            <div class="week-strip" id="week-strip"></div>
+            <div class="barber-strip" id="agenda-barbers"></div>
+            <div class="timeline" id="agenda-timeline">
+              <button class="floating-add" type="button" data-tab-shortcut="agenda">+</button>
+            </div>
+            <div class="app-bottom">
+              <button class="bottom-tab" data-tab-shortcut="dashboard" type="button"><span>▣</span>Caixa</button>
+              <button class="bottom-tab" data-tab-shortcut="agenda" type="button"><span>▤</span>Comandas</button>
+              <button class="bottom-tab active" data-tab-shortcut="dashboard" type="button"><span>◴</span>Agenda</button>
+              <button class="bottom-tab" data-tab-shortcut="clientes" type="button"><span>♙</span>Clientes</button>
+              <button class="bottom-tab" data-tab-shortcut="site" type="button"><span>⚙</span>Menu</button>
             </div>
           </div>
+          <div class="metric-grid" id="metric-grid" style="margin-top:16px;"></div>
         </div>
 
         <div id="tab-agenda" class="tab-panel" hidden>
@@ -588,8 +756,12 @@
       appointmentBarber: "",
       appointmentStatus: "",
       clientSearch: "",
+      agendaDate: new Date().toISOString().slice(0, 10),
+      agendaBarberId: "",
     };
     const weekdays = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"];
+    const shortWeekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+    const monthNames = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const baseTimes = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
 
     const $ = (id) => document.getElementById(id);
@@ -872,12 +1044,14 @@
 
     function renderDashboard() {
       const today = todayIso();
+      if (!state.agendaBarberId && state.barbers.length) state.agendaBarberId = String(state.barbers[0].id);
       const confirmed = state.appointments.filter((item) => item.status === "confirmed");
       const todayAppointments = confirmed.filter((item) => item.date === today);
       const futureAppointments = confirmed.filter((item) => item.date >= today);
       const doneAppointments = state.appointments.filter((item) => item.status === "done");
       const revenue = doneAppointments.reduce((sum, item) => sum + Number(item.service_price || 0), 0);
       const clients = buildClients();
+      renderAppAgenda();
 
       $("metric-grid").innerHTML = [
         ["Hoje", todayAppointments.length],
@@ -886,17 +1060,80 @@
         ["Faturamento", money(revenue)],
       ].map(([label, value]) => `<div class="metric-card"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
 
-      $("next-appointments").innerHTML = futureAppointments
-        .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-        .slice(0, 5)
-        .map((item) => `<div class="appointment"><strong>${escapeHtml(item.date)} as ${escapeHtml(item.time)} · ${escapeHtml(item.client_name)}</strong><p class="mini">${escapeHtml(item.service_name)} com ${escapeHtml(item.barber_name)}</p></div>`)
-        .join("") || '<p class="mini">Nenhum horario futuro confirmado.</p>';
+    }
 
-      $("top-clients").innerHTML = clients
-        .sort((a, b) => b.visits - a.visits || b.spent - a.spent)
-        .slice(0, 5)
-        .map((client) => `<div class="client-card"><strong>${escapeHtml(client.name)}</strong><p class="mini">${client.visits} visitas · ${money(client.spent)}</p></div>`)
-        .join("") || '<p class="mini">Nenhum cliente ainda.</p>';
+    function parseLocalDate(iso) {
+      const [year, month, day] = iso.split("-").map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function formatIso(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderAppAgenda() {
+      const selected = parseLocalDate(state.agendaDate);
+      $("agenda-month-label").textContent = `${monthNames[selected.getMonth()]} ${selected.getFullYear()}`;
+      const weekStart = new Date(selected);
+      weekStart.setDate(selected.getDate() - selected.getDay());
+      const days = Array.from({ length: 7 }, (_, index) => {
+        const day = new Date(weekStart);
+        day.setDate(weekStart.getDate() + index);
+        return day;
+      });
+      $("week-strip").innerHTML = days.map((day) => {
+        const iso = formatIso(day);
+        return `<button class="day-pill ${iso === state.agendaDate ? "active" : ""}" data-agenda-date="${iso}" type="button"><span>${shortWeekdays[day.getDay()]}</span><strong>${day.getDate()}</strong></button>`;
+      }).join("");
+
+      $("agenda-barbers").innerHTML = state.barbers.map((barber) => `
+        <button class="barber-pill ${String(barber.id) === String(state.agendaBarberId) ? "active" : ""}" data-agenda-barber="${barber.id}" type="button">
+          <span class="barber-avatar">${escapeHtml((barber.name || "?").slice(0, 1))}</span>
+          <em>${escapeHtml(barber.name)}</em>
+        </button>
+      `).join("");
+
+      const selectedBarber = state.barbers.find((barber) => String(barber.id) === String(state.agendaBarberId));
+      const dayItems = state.appointments
+        .filter((item) => item.date === state.agendaDate)
+        .filter((item) => !selectedBarber || item.barber_name === selectedBarber.name)
+        .sort((a, b) => a.time.localeCompare(b.time));
+      const byHour = new Map();
+      dayItems.forEach((item) => {
+        const hour = item.time.slice(0, 2) + ":00";
+        if (!byHour.has(hour)) byHour.set(hour, []);
+        byHour.get(hour).push(item);
+      });
+      const rows = baseTimes.map((hour) => `
+        <div class="time-row">
+          <span>${hour}</span>
+          <div>${(byHour.get(hour) || []).map((item) => `
+            <div class="timeline-event ${escapeHtml(item.status)}">
+              <small>${escapeHtml(item.time)} · ${escapeHtml(statusLabel(item.status))}</small>
+              <strong>${escapeHtml(item.service_name)} - ${escapeHtml(item.client_name)}</strong>
+              <p class="mini">${escapeHtml(item.client_phone)} · ${money(item.service_price)}</p>
+            </div>
+          `).join("")}</div>
+        </div>
+      `).join("");
+      $("agenda-timeline").innerHTML = rows + (dayItems.length ? "" : '<p class="timeline-empty">Nenhum horario nessa data para este barbeiro.</p>') + '<button class="floating-add" type="button" data-tab-shortcut="agenda">+</button>';
+
+      document.querySelectorAll("[data-agenda-date]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.agendaDate = button.dataset.agendaDate;
+          renderDashboard();
+        });
+      });
+      document.querySelectorAll("[data-agenda-barber]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.agendaBarberId = button.dataset.agendaBarber;
+          renderDashboard();
+        });
+      });
+      bindTabShortcuts();
     }
 
     function renderAdminBarbers() {
@@ -1029,6 +1266,27 @@
       state.clientSearch = event.target.value;
       renderClients();
     });
+    $("agenda-prev-week").addEventListener("click", () => {
+      const date = parseLocalDate(state.agendaDate);
+      date.setDate(date.getDate() - 7);
+      state.agendaDate = formatIso(date);
+      renderDashboard();
+    });
+    $("agenda-next-week").addEventListener("click", () => {
+      const date = parseLocalDate(state.agendaDate);
+      date.setDate(date.getDate() + 7);
+      state.agendaDate = formatIso(date);
+      renderDashboard();
+    });
+    function bindTabShortcuts() {
+      document.querySelectorAll("[data-tab-shortcut]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.activeTab = button.dataset.tabShortcut;
+          updateAdminView();
+        });
+      });
+    }
+    bindTabShortcuts();
     $("tabs").addEventListener("click", (event) => {
       if (event.target.dataset.tab) {
         state.activeTab = event.target.dataset.tab;
