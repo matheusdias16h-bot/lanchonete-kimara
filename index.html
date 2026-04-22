@@ -298,6 +298,13 @@
     .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
     .mini { color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
     .list { display: grid; gap: 12px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+    .metric-card { border: 1px solid rgba(255,255,255,0.1); background: #101010; border-radius: 5px; padding: 16px; }
+    .metric-card span { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.74rem; font-weight: 800; }
+    .metric-card strong { display: block; margin-top: 8px; color: var(--gold-2); font-size: 1.75rem; line-height: 1; }
+    .filter-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .status-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border-radius: 3px; border: 1px solid rgba(181,154,102,0.35); color: var(--gold-2); font-weight: 800; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.08em; }
+    .client-card { border: 1px solid rgba(255,255,255,0.1); background: #0b0b0b; padding: 14px; border-radius: 4px; display: grid; gap: 7px; }
     .appointment { border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid var(--gold); padding: 14px; border-radius: 4px; background: #0b0b0b; }
     .appointment strong { display: block; margin-bottom: 6px; }
     .schedule-table { display: grid; gap: 10px; }
@@ -311,14 +318,15 @@
       .hero { min-height: auto; padding-top: 48px; background-size: min(640px, 110vw) auto; background-position: center 130px; }
       .hero-grid, .booking-shell { grid-template-columns: 1fr; }
       .info-card { max-width: 420px; }
-      .quick, .services, .barbers, .proof, .admin-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick, .services, .barbers, .proof, .admin-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 640px) {
       .nav { min-height: 68px; }
       .brand img { width: 78px; }
       .admin-open { padding: 10px 12px; font-size: 0.72rem; }
       .hero { padding-bottom: 18px; }
-      .quick, .services, .barbers, .proof, .field-grid, .admin-grid { grid-template-columns: 1fr; }
+      .quick, .services, .barbers, .proof, .field-grid, .admin-grid, .metric-grid, .filter-bar { grid-template-columns: 1fr; }
       .quick-item { border-right: 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
       .section-head { align-items: start; flex-direction: column; }
       .slot-grid { grid-template-columns: repeat(3, 1fr); }
@@ -477,7 +485,9 @@
       <div id="dashboard-shell" hidden>
         <div class="admin-actions" style="margin-top:22px;">
           <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="agenda" type="button">Agenda</button>
+            <button class="tab active" data-tab="dashboard" type="button">Resumo</button>
+            <button class="tab" data-tab="agenda" type="button">Agenda</button>
+            <button class="tab" data-tab="clientes" type="button">Clientes</button>
             <button class="tab" data-tab="barbeiros" type="button">Barbeiros</button>
             <button class="tab" data-tab="servicos" type="button">Servicos</button>
             <button class="tab" data-tab="horarios" type="button">Horarios</button>
@@ -490,10 +500,38 @@
         </div>
         <div class="message" id="admin-message"></div>
 
-        <div id="tab-agenda" class="tab-panel">
+        <div id="tab-dashboard" class="tab-panel">
+          <div class="metric-grid" id="metric-grid"></div>
+          <div class="admin-grid">
+            <div class="admin-card">
+              <h3>Proximos horarios</h3>
+              <div class="list" id="next-appointments"></div>
+            </div>
+            <div class="admin-card">
+              <h3>Top clientes</h3>
+              <div class="list" id="top-clients"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-agenda" class="tab-panel" hidden>
           <div class="admin-card">
             <h3>Agendamentos</h3>
+            <div class="filter-bar">
+              <div class="field"><label for="appointment-search">Buscar</label><input id="appointment-search" placeholder="Cliente, telefone ou servico" /></div>
+              <div class="field"><label for="appointment-date-filter">Data</label><input id="appointment-date-filter" type="date" /></div>
+              <div class="field"><label for="appointment-barber-filter">Barbeiro</label><select id="appointment-barber-filter"></select></div>
+              <div class="field"><label for="appointment-status-filter">Status</label><select id="appointment-status-filter"><option value="">Todos</option><option value="confirmed">Confirmados</option><option value="done">Concluidos</option><option value="canceled">Cancelados</option></select></div>
+            </div>
             <div class="list" id="appointment-list"></div>
+          </div>
+        </div>
+
+        <div id="tab-clientes" class="tab-panel" hidden>
+          <div class="admin-card">
+            <h3>Clientes</h3>
+            <div class="field" style="margin-bottom:14px;"><label for="client-search">Buscar cliente</label><input id="client-search" placeholder="Nome, telefone ou e-mail" /></div>
+            <div class="admin-grid" id="client-list"></div>
           </div>
         </div>
 
@@ -544,7 +582,12 @@
       appointments: [],
       selectedTime: "",
       adminLogged: false,
-      activeTab: "agenda",
+      activeTab: "dashboard",
+      appointmentSearch: "",
+      appointmentDate: "",
+      appointmentBarber: "",
+      appointmentStatus: "",
+      clientSearch: "",
     };
     const weekdays = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"];
     const baseTimes = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
@@ -552,6 +595,10 @@
     const $ = (id) => document.getElementById(id);
     const money = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     const escapeHtml = (text) => String(text ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+    const normalize = (text) => String(text ?? "").toLowerCase();
+    const todayIso = () => new Date().toISOString().slice(0, 10);
+    const statusLabel = (status) => ({ confirmed: "Confirmado", done: "Concluido", canceled: "Cancelado" }[status] || status);
+    const onlyDigits = (text) => String(text ?? "").replace(/\D/g, "");
 
     async function fetchJson(url, options = {}) {
       const response = await fetch(url, {
@@ -719,7 +766,9 @@
     }
 
     function renderAdmin() {
+      renderDashboard();
       renderAppointments();
+      renderClients();
       renderAdminBarbers();
       renderAdminServices();
       renderSettings();
@@ -728,25 +777,126 @@
     }
 
     function renderAppointments() {
-      $("appointment-list").innerHTML = state.appointments.length ? state.appointments.map((item) => `
+      $("appointment-barber-filter").innerHTML = '<option value="">Todos</option>' + state.barbers.map((barber) => `<option value="${barber.name}">${escapeHtml(barber.name)}</option>`).join("");
+      $("appointment-search").value = state.appointmentSearch;
+      $("appointment-date-filter").value = state.appointmentDate;
+      $("appointment-barber-filter").value = state.appointmentBarber;
+      $("appointment-status-filter").value = state.appointmentStatus;
+
+      const appointments = getFilteredAppointments();
+      $("appointment-list").innerHTML = appointments.length ? appointments.map((item) => `
         <div class="appointment">
-          <strong>${escapeHtml(item.date)} as ${escapeHtml(item.time)} · ${escapeHtml(item.client_name)}</strong>
+          <strong>${escapeHtml(item.date)} as ${escapeHtml(item.time)} · ${escapeHtml(item.client_name)} <span class="status-tag">${escapeHtml(statusLabel(item.status))}</span></strong>
           <p class="mini">${escapeHtml(item.service_name)} com ${escapeHtml(item.barber_name)} · ${money(item.service_price)}</p>
           <p class="mini">WhatsApp: ${escapeHtml(item.client_phone)} · E-mail: ${escapeHtml(item.client_email || "nao informado")}</p>
-          <p class="mini">Status: ${escapeHtml(item.status)} · Criado em ${escapeHtml(item.created_at)}</p>
+          <p class="mini">Criado em ${escapeHtml(item.created_at)}</p>
           ${item.notes ? `<p class="mini">Obs: ${escapeHtml(item.notes)}</p>` : ""}
           <div class="row-actions">
+            <a class="btn ghost" href="${escapeHtml(clientWhatsAppUrl(item))}" target="_blank" rel="noreferrer">WhatsApp</a>
             <button class="btn ghost" data-status="done" data-id="${item.id}" type="button">Concluido</button>
             <button class="btn secondary" data-status="canceled" data-id="${item.id}" type="button">Cancelar</button>
           </div>
         </div>
-      `).join("") : '<p class="mini">Nenhum agendamento ainda.</p>';
+      `).join("") : '<p class="mini">Nenhum agendamento encontrado com esses filtros.</p>';
       document.querySelectorAll("[data-status]").forEach((button) => {
         button.addEventListener("click", async () => {
           await fetchJson("/api/admin/appointment-status", { method: "POST", body: JSON.stringify({ id: Number(button.dataset.id), status: button.dataset.status }) });
           await refreshAdmin();
         });
       });
+    }
+
+    function getFilteredAppointments() {
+      return state.appointments.filter((item) => {
+        const bucket = normalize([item.client_name, item.client_phone, item.client_email, item.service_name, item.barber_name].join(" "));
+        if (state.appointmentSearch && !bucket.includes(normalize(state.appointmentSearch))) return false;
+        if (state.appointmentDate && item.date !== state.appointmentDate) return false;
+        if (state.appointmentBarber && item.barber_name !== state.appointmentBarber) return false;
+        if (state.appointmentStatus && item.status !== state.appointmentStatus) return false;
+        return true;
+      });
+    }
+
+    function clientWhatsAppUrl(item) {
+      const number = onlyDigits(item.client_phone);
+      const text = `Ola, ${item.client_name}! Aqui e da Barbearia da Vinte sobre seu horario de ${item.date} as ${item.time}.`;
+      return number ? "https://wa.me/55" + number.replace(/^55/, "") + "?text=" + encodeURIComponent(text) : whatsappUrl(text);
+    }
+
+    function buildClients() {
+      const clients = new Map();
+      state.appointments.forEach((item) => {
+        const key = onlyDigits(item.client_phone) || normalize(item.client_name);
+        if (!clients.has(key)) {
+          clients.set(key, {
+            name: item.client_name,
+            phone: item.client_phone,
+            email: item.client_email,
+            visits: 0,
+            spent: 0,
+            lastDate: item.date,
+            lastService: item.service_name,
+          });
+        }
+        const client = clients.get(key);
+        if (item.status !== "canceled") {
+          client.visits += 1;
+          client.spent += Number(item.service_price || 0);
+        }
+        if (item.date >= client.lastDate) {
+          client.lastDate = item.date;
+          client.lastService = item.service_name;
+        }
+      });
+      return Array.from(clients.values()).sort((a, b) => b.lastDate.localeCompare(a.lastDate));
+    }
+
+    function renderClients() {
+      const query = normalize(state.clientSearch);
+      $("client-search").value = state.clientSearch;
+      const clients = buildClients().filter((client) => {
+        const bucket = normalize([client.name, client.phone, client.email].join(" "));
+        return !query || bucket.includes(query);
+      });
+      $("client-list").innerHTML = clients.length ? clients.map((client) => `
+        <div class="client-card">
+          <strong>${escapeHtml(client.name)}</strong>
+          <p class="mini">WhatsApp: ${escapeHtml(client.phone || "nao informado")}</p>
+          <p class="mini">E-mail: ${escapeHtml(client.email || "nao informado")}</p>
+          <p class="mini">Visitas: ${client.visits} · Total: ${money(client.spent)}</p>
+          <p class="mini">Ultimo servico: ${escapeHtml(client.lastService || "-")} em ${escapeHtml(client.lastDate || "-")}</p>
+          <div class="row-actions"><a class="btn ghost" href="${escapeHtml(clientWhatsAppUrl({ client_phone: client.phone, client_name: client.name, date: client.lastDate, time: "" }))}" target="_blank" rel="noreferrer">Chamar</a></div>
+        </div>
+      `).join("") : '<p class="mini">Nenhum cliente encontrado.</p>';
+    }
+
+    function renderDashboard() {
+      const today = todayIso();
+      const confirmed = state.appointments.filter((item) => item.status === "confirmed");
+      const todayAppointments = confirmed.filter((item) => item.date === today);
+      const futureAppointments = confirmed.filter((item) => item.date >= today);
+      const doneAppointments = state.appointments.filter((item) => item.status === "done");
+      const revenue = doneAppointments.reduce((sum, item) => sum + Number(item.service_price || 0), 0);
+      const clients = buildClients();
+
+      $("metric-grid").innerHTML = [
+        ["Hoje", todayAppointments.length],
+        ["Proximos", futureAppointments.length],
+        ["Clientes", clients.length],
+        ["Faturamento", money(revenue)],
+      ].map(([label, value]) => `<div class="metric-card"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+
+      $("next-appointments").innerHTML = futureAppointments
+        .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+        .slice(0, 5)
+        .map((item) => `<div class="appointment"><strong>${escapeHtml(item.date)} as ${escapeHtml(item.time)} · ${escapeHtml(item.client_name)}</strong><p class="mini">${escapeHtml(item.service_name)} com ${escapeHtml(item.barber_name)}</p></div>`)
+        .join("") || '<p class="mini">Nenhum horario futuro confirmado.</p>';
+
+      $("top-clients").innerHTML = clients
+        .sort((a, b) => b.visits - a.visits || b.spent - a.spent)
+        .slice(0, 5)
+        .map((client) => `<div class="client-card"><strong>${escapeHtml(client.name)}</strong><p class="mini">${client.visits} visitas · ${money(client.spent)}</p></div>`)
+        .join("") || '<p class="mini">Nenhum cliente ainda.</p>';
     }
 
     function renderAdminBarbers() {
@@ -859,6 +1009,26 @@
       await saveAdmin();
     });
     $("schedule-barber").addEventListener("change", renderSchedule);
+    $("appointment-search").addEventListener("input", (event) => {
+      state.appointmentSearch = event.target.value;
+      renderAppointments();
+    });
+    $("appointment-date-filter").addEventListener("change", (event) => {
+      state.appointmentDate = event.target.value;
+      renderAppointments();
+    });
+    $("appointment-barber-filter").addEventListener("change", (event) => {
+      state.appointmentBarber = event.target.value;
+      renderAppointments();
+    });
+    $("appointment-status-filter").addEventListener("change", (event) => {
+      state.appointmentStatus = event.target.value;
+      renderAppointments();
+    });
+    $("client-search").addEventListener("input", (event) => {
+      state.clientSearch = event.target.value;
+      renderClients();
+    });
     $("tabs").addEventListener("click", (event) => {
       if (event.target.dataset.tab) {
         state.activeTab = event.target.dataset.tab;
