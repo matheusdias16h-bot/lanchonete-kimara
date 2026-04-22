@@ -867,11 +867,12 @@
     });
     $("login-form").addEventListener("submit", async (event) => {
       event.preventDefault();
+      const form = event.currentTarget;
       setMessage($("login-message"), "Entrando...", "");
       try {
-        await fetchJson("/api/admin/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) });
+        await fetchJson("/api/admin/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(form).entries())) });
         state.adminLogged = true;
-        event.currentTarget.reset();
+        form.reset();
         setMessage($("login-message"), "", "");
         updateAdminView();
         try {
