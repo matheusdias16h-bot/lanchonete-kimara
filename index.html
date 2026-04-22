@@ -236,6 +236,22 @@
     textarea { min-height: 88px; resize: vertical; }
     input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(181,154,102,0.16); }
     .slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
+    .service-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .service-choice {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 9px;
+      align-items: start;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #080808;
+      border-radius: 4px;
+      padding: 11px;
+      cursor: pointer;
+    }
+    .service-choice input { width: 16px; margin-top: 2px; accent-color: var(--gold); }
+    .service-choice strong { display: block; color: var(--ink); font-size: 0.9rem; }
+    .service-choice span { display: block; color: var(--muted); margin-top: 3px; font-size: 0.78rem; line-height: 1.35; }
+    .booking-summary { color: var(--gold-2); font-weight: 800; margin-top: 8px; min-height: 20px; }
     .slot {
       min-height: 42px;
       border: 1px solid rgba(255,255,255,0.12);
@@ -489,6 +505,7 @@
       .quick-item { border-right: 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
       .section-head { align-items: start; flex-direction: column; }
       .slot-grid { grid-template-columns: repeat(3, 1fr); }
+      .service-choice-grid { grid-template-columns: 1fr; }
       .day-row { grid-template-columns: 1fr; }
     }
   </style>
@@ -578,9 +595,10 @@
               <label for="client-email">E-mail</label>
               <input id="client-email" name="clientEmail" type="email" placeholder="voce@email.com" />
             </div>
-            <div class="field">
-              <label for="service-select">Servico</label>
-              <select id="service-select" name="serviceId" required></select>
+            <div class="field full">
+              <label>Servicos</label>
+              <div class="service-choice-grid" id="service-choice-list"></div>
+              <div class="booking-summary" id="booking-summary"></div>
             </div>
             <div class="field">
               <label for="barber-select">Barbeiro</label>
@@ -762,7 +780,10 @@
     const weekdays = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"];
     const shortWeekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
     const monthNames = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    const baseTimes = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
+    const baseTimes = Array.from({ length: 44 }, (_, index) => {
+      const total = 9 * 60 + index * 15;
+      return String(Math.floor(total / 60)).padStart(2, "0") + ":" + String(total % 60).padStart(2, "0");
+    });
 
     const $ = (id) => document.getElementById(id);
     const money = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -821,7 +842,16 @@
         </article>
       `).join("");
 
-      $("service-select").innerHTML = state.services.map((service) => `<option value="${service.id}">${escapeHtml(service.name)} - ${money(service.price)}</option>`).join("");
+      $("service-choice-list").innerHTML = state.services.map((service, index) => `
+        <label class="service-choice">
+          <input type="checkbox" name="serviceIds" value="${service.id}" ${index === 0 ? "checked" : ""} />
+          <span><strong>${escapeHtml(service.name)}</strong><span>${money(service.price)} · ${escapeHtml(service.duration)} min</span></span>
+        </label>
+      `).join("");
+      document.querySelectorAll('input[name="serviceIds"]').forEach((input) => input.addEventListener("change", () => {
+        updateBookingSummary();
+        loadAvailability();
+      }));
       $("barber-select").innerHTML = state.barbers.map((barber) => `<option value="${barber.id}">${escapeHtml(barber.name)}</option>`).join("");
       document.querySelectorAll("[data-pick-barber]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -830,6 +860,21 @@
         });
       });
       loadAvailability();
+      updateBookingSummary();
+    }
+
+    function getSelectedServices() {
+      const selectedIds = Array.from(document.querySelectorAll('input[name="serviceIds"]:checked')).map((input) => Number(input.value));
+      return state.services.filter((service) => selectedIds.includes(Number(service.id)));
+    }
+
+    function updateBookingSummary() {
+      const selected = getSelectedServices();
+      const totalPrice = selected.reduce((sum, service) => sum + Number(service.price || 0), 0);
+      const totalDuration = selected.reduce((sum, service) => sum + Number(service.duration || 0), 0);
+      $("booking-summary").textContent = selected.length
+        ? `Total: ${money(totalPrice)} · ${totalDuration} min`
+        : "Escolha pelo menos um servico.";
     }
 
     async function loadPublicData() {
@@ -847,7 +892,12 @@
         $("slot-grid").innerHTML = '<p class="mini">Escolha barbeiro e data para ver horarios.</p>';
         return;
       }
-      const payload = await fetchJson(`/api/availability?barberId=${encodeURIComponent(barberId)}&date=${encodeURIComponent(date)}`);
+      const serviceIds = getSelectedServices().map((service) => service.id).join(",");
+      if (!serviceIds) {
+        $("slot-grid").innerHTML = '<p class="mini">Escolha pelo menos um servico para ver horarios.</p>';
+        return;
+      }
+      const payload = await fetchJson(`/api/availability?barberId=${encodeURIComponent(barberId)}&date=${encodeURIComponent(date)}&serviceIds=${encodeURIComponent(serviceIds)}`);
       $("slot-grid").innerHTML = payload.slots.length ? payload.slots.map((slot) => `
         <button class="slot" type="button" ${slot.available ? "" : "disabled"} data-time="${slot.time}">${slot.time}</button>
       `).join("") : '<p class="mini">Esse barbeiro nao tem horarios cadastrados nessa data.</p>';
@@ -865,6 +915,11 @@
       event.preventDefault();
       const form = event.currentTarget;
       const formData = new FormData(form);
+      const selectedServices = getSelectedServices();
+      if (!selectedServices.length) {
+        setMessage($("booking-message"), "Escolha pelo menos um servico.", "err");
+        return;
+      }
       if (!$("time-input").value) {
         setMessage($("booking-message"), "Escolha um horario livre para confirmar.", "err");
         return;
@@ -872,7 +927,8 @@
       setMessage($("booking-message"), "Confirmando seu horario...", "");
       try {
         const payload = Object.fromEntries(formData.entries());
-        payload.serviceId = Number(payload.serviceId);
+        payload.serviceIds = selectedServices.map((service) => Number(service.id));
+        payload.serviceId = payload.serviceIds[0];
         payload.barberId = Number(payload.barberId);
         const response = await fetchJson("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
         form.reset();

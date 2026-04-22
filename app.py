@@ -50,7 +50,11 @@ DEFAULT_BARBERS = [
     ("Luan", "Coloracao e design", "luan@barbeariadavinte.com", ""),
 ]
 
-DEFAULT_TIMES = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
+DEFAULT_TIMES = [
+    f"{hour:02d}:{minute:02d}"
+    for hour in range(9, 20)
+    for minute in (0, 15, 30, 45)
+]
 
 
 def utc_now() -> datetime:
@@ -134,6 +138,17 @@ def init_db():
         )
         conn.execute(
             """
+            CREATE TABLE IF NOT EXISTS appointment_services (
+                appointment_id INTEGER NOT NULL,
+                service_id INTEGER NOT NULL,
+                PRIMARY KEY (appointment_id, service_id),
+                FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
+                FOREIGN KEY (service_id) REFERENCES services(id)
+            )
+            """
+        )
+        conn.execute(
+            """
             CREATE UNIQUE INDEX IF NOT EXISTS appointment_busy_slot
             ON appointments (barber_id, date, time)
             WHERE status = 'confirmed'
@@ -199,6 +214,17 @@ def init_db():
                 rows,
             )
 
+        barber_ids = [row["id"] for row in conn.execute("SELECT id FROM barbers WHERE active = 1").fetchall()]
+        rows = []
+        for barber_id in barber_ids:
+            for weekday in range(1, 7):
+                for time in DEFAULT_TIMES:
+                    rows.append((barber_id, weekday, time))
+        conn.executemany(
+            "INSERT OR IGNORE INTO barber_slots (barber_id, weekday, time) VALUES (?, ?, ?)",
+            rows,
+        )
+
 
 def read_settings(conn):
     row = conn.execute("SELECT payload FROM settings WHERE id = 1").fetchone()
@@ -251,7 +277,25 @@ def read_appointments(conn):
     rows = conn.execute(
         """
         SELECT a.id, a.client_name, a.client_phone, a.client_email, a.notes, a.date, a.time,
-               a.status, a.created_at, s.name AS service_name, s.price AS service_price,
+               a.status, a.created_at,
+               COALESCE((
+                   SELECT GROUP_CONCAT(s2.name, ' + ')
+                   FROM appointment_services aps
+                   JOIN services s2 ON s2.id = aps.service_id
+                   WHERE aps.appointment_id = a.id
+               ), s.name) AS service_name,
+               COALESCE((
+                   SELECT SUM(s2.price)
+                   FROM appointment_services aps
+                   JOIN services s2 ON s2.id = aps.service_id
+                   WHERE aps.appointment_id = a.id
+               ), s.price) AS service_price,
+               COALESCE((
+                   SELECT SUM(s2.duration)
+                   FROM appointment_services aps
+                   JOIN services s2 ON s2.id = aps.service_id
+                   WHERE aps.appointment_id = a.id
+               ), s.duration) AS service_duration,
                b.name AS barber_name, b.email AS barber_email
         FROM appointments a
         JOIN services s ON s.id = a.service_id
@@ -262,7 +306,37 @@ def read_appointments(conn):
     return [dict(row) for row in rows]
 
 
-def get_availability(barber_id, date_text):
+def time_to_minutes(time_text):
+    hour, minute = [int(part) for part in time_text.split(":")]
+    return hour * 60 + minute
+
+
+def intervals_overlap(start_a, end_a, start_b, end_b):
+    return start_a < end_b and start_b < end_a
+
+
+def get_service_totals(conn, service_ids):
+    clean_ids = [int(service_id) for service_id in service_ids if int(service_id or 0) > 0]
+    if not clean_ids:
+        return {"ids": [], "duration": 30, "price": 0.0, "names": ""}
+    placeholders = ",".join("?" for _ in clean_ids)
+    rows = conn.execute(
+        f"SELECT id, name, price, duration FROM services WHERE id IN ({placeholders}) AND active = 1",
+        clean_ids,
+    ).fetchall()
+    if not rows:
+        return {"ids": [], "duration": 30, "price": 0.0, "names": ""}
+    by_id = {row["id"]: row for row in rows}
+    ordered = [by_id[service_id] for service_id in clean_ids if service_id in by_id]
+    return {
+        "ids": [row["id"] for row in ordered],
+        "duration": sum(int(row["duration"]) for row in ordered),
+        "price": sum(float(row["price"]) for row in ordered),
+        "names": " + ".join(row["name"] for row in ordered),
+    }
+
+
+def get_availability(barber_id, date_text, service_ids=None):
     try:
         appointment_date = datetime.strptime(date_text, "%Y-%m-%d").date()
     except ValueError:
@@ -271,6 +345,8 @@ def get_availability(barber_id, date_text):
     today = datetime.now().date()
     now_time = datetime.now().strftime("%H:%M")
     with db_connection() as conn:
+        service_totals = get_service_totals(conn, service_ids or [])
+        requested_duration = max(15, int(service_totals["duration"]))
         slots = [
             row["time"]
             for row in conn.execute(
@@ -282,18 +358,38 @@ def get_availability(barber_id, date_text):
                 (barber_id, weekday),
             ).fetchall()
         ]
-        busy = {
-            row["time"]
-            for row in conn.execute(
-                """
-                SELECT time FROM appointments
-                WHERE barber_id = ? AND date = ? AND status = 'confirmed'
-                """,
-                (barber_id, date_text),
-            ).fetchall()
-        }
+        busy_rows = conn.execute(
+            """
+            SELECT a.time,
+                   COALESCE((
+                       SELECT SUM(s2.duration)
+                       FROM appointment_services aps
+                       JOIN services s2 ON s2.id = aps.service_id
+                       WHERE aps.appointment_id = a.id
+                   ), s.duration) AS duration
+            FROM appointments a
+            JOIN services s ON s.id = a.service_id
+            WHERE a.barber_id = ? AND a.date = ? AND a.status = 'confirmed'
+            """,
+            (barber_id, date_text),
+        ).fetchall()
+        busy_intervals = [
+            (time_to_minutes(row["time"]), time_to_minutes(row["time"]) + int(row["duration"]))
+            for row in busy_rows
+        ]
+    schedule_end = time_to_minutes(slots[-1]) + 15 if slots else 0
     return [
-        {"time": time, "available": time not in busy and (appointment_date > today or time > now_time)}
+        {
+            "time": time,
+            "available": (
+                (appointment_date > today or time > now_time)
+                and time_to_minutes(time) + requested_duration <= schedule_end
+                and not any(
+                    intervals_overlap(time_to_minutes(time), time_to_minutes(time) + requested_duration, busy_start, busy_end)
+                    for busy_start, busy_end in busy_intervals
+                )
+            ),
+        }
         for time in slots
     ]
 
@@ -401,18 +497,25 @@ def create_appointment(payload):
     notes = str(payload.get("notes", "")).strip()
     date_text = str(payload.get("date", "")).strip()
     time = str(payload.get("time", "")).strip()
-    service_id = int(payload.get("serviceId") or 0)
+    service_ids = payload.get("serviceIds")
+    if not isinstance(service_ids, list):
+        service_ids = [payload.get("serviceId")]
+    service_ids = [int(service_id or 0) for service_id in service_ids if int(service_id or 0) > 0]
+    service_id = service_ids[0] if service_ids else 0
     barber_id = int(payload.get("barberId") or 0)
 
     if not all([name, phone, date_text, time, service_id, barber_id]):
         raise ValueError("Preencha nome, WhatsApp, servico, barbeiro, data e horario.")
 
-    available = get_availability(barber_id, date_text)
+    available = get_availability(barber_id, date_text, service_ids)
     if not any(slot["time"] == time and slot["available"] for slot in available):
         raise ValueError("Esse horario acabou de ficar indisponivel. Escolha outro horario.")
 
     created_at = datetime.now().strftime("%d/%m/%Y, %H:%M")
     with db_connection() as conn:
+        service_totals = get_service_totals(conn, service_ids)
+        if not service_totals["ids"]:
+            raise ValueError("Escolha pelo menos um servico ativo.")
         try:
             cursor = conn.execute(
                 """
@@ -423,20 +526,24 @@ def create_appointment(payload):
                 (name, phone, email, notes, service_id, barber_id, date_text, time, created_at),
             )
             appointment_id = cursor.lastrowid
+            conn.executemany(
+                "INSERT OR IGNORE INTO appointment_services (appointment_id, service_id) VALUES (?, ?)",
+                [(appointment_id, service_id) for service_id in service_totals["ids"]],
+            )
         except sqlite3.IntegrityError as exc:
             raise ValueError("Esse horario ja foi ocupado por outro cliente.") from exc
 
         appointment = conn.execute(
             """
             SELECT a.id, a.client_name, a.client_phone, a.client_email, a.notes, a.date, a.time, a.created_at,
-                   s.name AS service_name, s.price AS service_price, s.duration AS service_duration,
+                   ? AS service_name, ? AS service_price, ? AS service_duration,
                    b.name AS barber_name, b.email AS barber_email
             FROM appointments a
             JOIN services s ON s.id = a.service_id
             JOIN barbers b ON b.id = a.barber_id
             WHERE a.id = ?
             """,
-            (appointment_id,),
+            (service_totals["names"], service_totals["price"], service_totals["duration"], appointment_id),
         ).fetchone()
         appointment_dict = dict(appointment)
         notify_barber(conn, appointment_dict)
@@ -541,7 +648,10 @@ class AppHandler(BaseHTTPRequestHandler):
             query = parse_qs(parsed.query)
             barber_id = int(query.get("barberId", ["0"])[0] or 0)
             date_text = query.get("date", [""])[0]
-            return self.send_json(HTTPStatus.OK, {"slots": get_availability(barber_id, date_text)})
+            service_ids = []
+            for raw_value in query.get("serviceIds", []) + query.get("serviceId", []):
+                service_ids.extend([item for item in raw_value.split(",") if item])
+            return self.send_json(HTTPStatus.OK, {"slots": get_availability(barber_id, date_text, service_ids)})
         if parsed.path == "/api/admin/session":
             return self.send_json(HTTPStatus.OK, {"logged": self.is_authenticated()})
         if parsed.path == "/api/admin/data":
