@@ -2,70 +2,63 @@ import hashlib
 import json
 import os
 import secrets
-import smtplib
 import sqlite3
 from datetime import datetime, timedelta, timezone
-from email.message import EmailMessage
 from http import HTTPStatus
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "barbearia_da_vinte_data.sqlite"
+DB_PATH = BASE_DIR / "kimara_data.sqlite"
 INDEX_PATH = BASE_DIR / "index.html"
 STATIC_DIR = BASE_DIR / "static"
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "8000"))
-SESSION_COOKIE = "barbearia_vinte_session"
+SESSION_COOKIE = "kimara_admin_session"
 SESSION_DURATION = timedelta(hours=12)
 ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASS_HASH = hashlib.sha256(os.environ.get("ADMIN_PASS", "1234").encode("utf-8")).hexdigest()
 
 
 DEFAULT_SETTINGS = {
-    "name": "Barbearia da Vinte",
-    "tagline": "Seu estilo. Sua identidade.",
-    "address": "Rua da Vinte, 20 - Centro",
-    "phone": "(11) 99999-9999",
-    "whatsapp": "5511999999999",
-    "hours": "Ter - Dom: 09h as 20h",
-    "instagram": "@barbeariadavinte",
-    "about": "Uma barbearia feita para corte alinhado, barba bem desenhada e atendimento no horario certo.",
+    "name": "Lanchonete Kimara",
+    "slogan": "Coxinhas e enrolados top",
+    "whatsapp": "5531983059830",
+    "phoneDisplay": "(31) 98305-9830",
+    "address": "Rua Santa Clara, 15 - Mantiqueira, Belo Horizonte - MG, 31652-383",
+    "hours": "Segunda a sabado, 08:00 as 20:00",
+    "instagram": "@lanchonetekimara",
+    "promoTitle": "Combo Kimara",
+    "promoText": "2 coxinhas + 2 enrolados + refrigerante por preco especial.",
+    "promoPrice": 24.9,
 }
 
-DEFAULT_SERVICES = [
-    ("Corte", "", 30.0, 45),
-    ("Barba", "", 20.0, 15),
-    ("Barboterapia", "", 35.0, 30),
-    ("Sobrancelha", "", 10.0, 15),
-    ("Bigode/Limpeza", "", 5.0, 15),
-    ("Cartãozinho completo", "", 0.0, 60),
-    ("Cavanhaque", "", 15.0, 15),
-    ("Já tenho mensal", "", 0.0, 60),
-    ("Luzes", "", 60.0, 120),
-    ("Pezinho", "", 10.0, 15),
-    ("Pigmentação", "", 25.0, 30),
-    ("Pigmentação colorida", "", 90.0, 120),
-    ("Platinado/Nevou", "", 90.0, 30),
+DEFAULT_PRODUCTS = [
+    ("Coxinha Tradicional", "Frango bem temperado, massa macia e crocante por fora.", 7.0, "Coxinhas", "Mais pedida", 1),
+    ("Coxinha com Catupiry", "Recheio cremoso e sabor marcante para quem gosta de capricho.", 8.5, "Coxinhas", "Cremosa", 1),
+    ("Enrolado de Presunto e Queijo", "Assado douradinho com recheio generoso e muito sabor.", 6.5, "Enrolados", "Assado", 1),
+    ("Enrolado de Salsicha", "Classico da lanchonete, ideal para qualquer hora do dia.", 6.0, "Enrolados", "Favorito", 1),
+    ("Mini Salgados - Cento", "Ideal para festas, reunioes e encomendas especiais.", 65.0, "Encomendas", "Encomenda", 1),
 ]
 
-DEFAULT_BARBERS = [
-    ("Yuri", "todas", "yuri@barbeariadavinte.com", ""),
-    ("Alisson", "todas", "alisson@barbeariadavinte.com", ""),
-    ("Venê", "todas", "vene@barbeariadavinte.com", ""),
+DEFAULT_DELIVERY_AREAS = [
+    ("Mantiqueira", 4.0, "20-30 min"),
+    ("Venda Nova", 6.0, "25-35 min"),
+    ("Serra Verde", 7.0, "30-40 min"),
+    ("Jardim Europa", 8.0, "35-45 min"),
 ]
 
-DEFAULT_TIMES = [
-    f"{hour:02d}:{minute:02d}"
-    for hour in range(9, 20)
-    for minute in (0, 15, 30, 45)
+TESTIMONIALS = [
+    {"id": 1, "name": "Juliana", "text": "A melhor coxinha da regiao. Sempre chega quentinha e muito recheada."},
+    {"id": 2, "name": "Carlos", "text": "Os enrolados sao muito bons e os combos valem demais a pena."},
+    {"id": 3, "name": "Fernanda", "text": "Pedi para aniversario e foi sucesso. Todo mundo elogiou."},
 ]
 
 
-def utc_now() -> datetime:
+def utc_now():
     return datetime.now(timezone.utc)
 
 
@@ -79,7 +72,6 @@ def db_connection():
 
 def init_db():
     with db_connection() as conn:
-        conn.execute("PRAGMA foreign_keys = ON")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS settings (
@@ -91,87 +83,40 @@ def init_db():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS services (
+            CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 description TEXT NOT NULL DEFAULT '',
                 price REAL NOT NULL,
-                duration INTEGER NOT NULL,
-                active INTEGER NOT NULL DEFAULT 1
+                category TEXT NOT NULL,
+                badge TEXT NOT NULL DEFAULT '',
+                active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL
             )
             """
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS barbers (
+            CREATE TABLE IF NOT EXISTS delivery_areas (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                specialty TEXT NOT NULL DEFAULT '',
-                email TEXT NOT NULL DEFAULT '',
-                photo TEXT NOT NULL DEFAULT '',
-                active INTEGER NOT NULL DEFAULT 1
+                neighborhood TEXT NOT NULL,
+                fee REAL NOT NULL,
+                eta TEXT NOT NULL
             )
             """
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS barber_slots (
+            CREATE TABLE IF NOT EXISTS orders (
                 id INTEGER PRIMARY KEY,
-                barber_id INTEGER NOT NULL,
-                weekday INTEGER NOT NULL,
-                time TEXT NOT NULL,
-                FOREIGN KEY (barber_id) REFERENCES barbers(id) ON DELETE CASCADE,
-                UNIQUE (barber_id, weekday, time)
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS appointments (
-                id INTEGER PRIMARY KEY,
-                client_name TEXT NOT NULL,
-                client_phone TEXT NOT NULL,
-                client_email TEXT NOT NULL DEFAULT '',
-                notes TEXT NOT NULL DEFAULT '',
-                service_id INTEGER NOT NULL,
-                barber_id INTEGER NOT NULL,
-                date TEXT NOT NULL,
-                time TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'confirmed',
-                created_at TEXT NOT NULL,
-                FOREIGN KEY (service_id) REFERENCES services(id),
-                FOREIGN KEY (barber_id) REFERENCES barbers(id)
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS appointment_services (
-                appointment_id INTEGER NOT NULL,
-                service_id INTEGER NOT NULL,
-                PRIMARY KEY (appointment_id, service_id),
-                FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
-                FOREIGN KEY (service_id) REFERENCES services(id)
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE UNIQUE INDEX IF NOT EXISTS appointment_busy_slot
-            ON appointments (barber_id, date, time)
-            WHERE status = 'confirmed'
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS email_outbox (
-                id INTEGER PRIMARY KEY,
-                appointment_id INTEGER,
-                recipient TEXT NOT NULL,
-                subject TEXT NOT NULL,
-                body TEXT NOT NULL,
+                customer TEXT NOT NULL,
+                customer_neighborhood TEXT NOT NULL,
+                items TEXT NOT NULL,
+                items_label TEXT NOT NULL,
+                subtotal REAL NOT NULL,
+                delivery_fee REAL NOT NULL,
+                total REAL NOT NULL,
                 status TEXT NOT NULL,
-                error TEXT NOT NULL DEFAULT '',
                 created_at TEXT NOT NULL
             )
             """
@@ -191,434 +136,237 @@ def init_db():
                 "INSERT INTO settings (id, payload, updated_at) VALUES (1, ?, ?)",
                 (json.dumps(DEFAULT_SETTINGS, ensure_ascii=False), utc_now().isoformat()),
             )
-
-        if not conn.execute("SELECT id FROM services LIMIT 1").fetchone():
+        if not conn.execute("SELECT id FROM products LIMIT 1").fetchone():
             conn.executemany(
                 """
-                INSERT INTO services (name, description, price, duration, active)
-                VALUES (?, ?, ?, ?, 1)
+                INSERT INTO products (name, description, price, category, badge, active, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                DEFAULT_SERVICES,
+                [(*item, utc_now().isoformat()) for item in DEFAULT_PRODUCTS],
+            )
+        if not conn.execute("SELECT id FROM delivery_areas LIMIT 1").fetchone():
+            conn.executemany(
+                "INSERT INTO delivery_areas (neighborhood, fee, eta) VALUES (?, ?, ?)",
+                DEFAULT_DELIVERY_AREAS,
             )
 
-        if not conn.execute("SELECT id FROM barbers LIMIT 1").fetchone():
+
+def seed_defaults_if_empty():
+    seeded = {"products": 0, "deliveryAreas": 0, "settings": 0}
+    with db_connection() as conn:
+        if not conn.execute("SELECT id FROM settings WHERE id = 1").fetchone():
+            conn.execute(
+                "INSERT INTO settings (id, payload, updated_at) VALUES (1, ?, ?)",
+                (json.dumps(DEFAULT_SETTINGS, ensure_ascii=False), utc_now().isoformat()),
+            )
+            seeded["settings"] = 1
+        if not conn.execute("SELECT id FROM products LIMIT 1").fetchone():
             conn.executemany(
                 """
-                INSERT INTO barbers (name, specialty, email, photo, active)
-                VALUES (?, ?, ?, ?, 1)
+                INSERT INTO products (name, description, price, category, badge, active, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                DEFAULT_BARBERS,
+                [(*item, utc_now().isoformat()) for item in DEFAULT_PRODUCTS],
             )
-
-        if not conn.execute("SELECT id FROM barber_slots LIMIT 1").fetchone():
-            barber_ids = [row["id"] for row in conn.execute("SELECT id FROM barbers").fetchall()]
-            rows = []
-            for barber_id in barber_ids:
-                for weekday in range(1, 7):
-                    for time in DEFAULT_TIMES:
-                        rows.append((barber_id, weekday, time))
+            seeded["products"] = len(DEFAULT_PRODUCTS)
+        if not conn.execute("SELECT id FROM delivery_areas LIMIT 1").fetchone():
             conn.executemany(
-                "INSERT OR IGNORE INTO barber_slots (barber_id, weekday, time) VALUES (?, ?, ?)",
-                rows,
+                "INSERT INTO delivery_areas (neighborhood, fee, eta) VALUES (?, ?, ?)",
+                DEFAULT_DELIVERY_AREAS,
             )
-
-        barber_ids = [row["id"] for row in conn.execute("SELECT id FROM barbers WHERE active = 1").fetchall()]
-        rows = []
-        for barber_id in barber_ids:
-            for weekday in range(1, 7):
-                for time in DEFAULT_TIMES:
-                    rows.append((barber_id, weekday, time))
-        conn.executemany(
-            "INSERT OR IGNORE INTO barber_slots (barber_id, weekday, time) VALUES (?, ?, ?)",
-            rows,
-        )
+            seeded["deliveryAreas"] = len(DEFAULT_DELIVERY_AREAS)
+    return seeded
 
 
 def read_settings(conn):
-    row = conn.execute("SELECT payload FROM settings WHERE id = 1").fetchone()
     settings = DEFAULT_SETTINGS.copy()
+    row = conn.execute("SELECT payload FROM settings WHERE id = 1").fetchone()
     if row:
         settings.update(json.loads(row["payload"]))
     return settings
 
 
-def read_public_data(include_admin=False):
-    with db_connection() as conn:
-        settings = read_settings(conn)
-        services = [
-            dict(row)
-            for row in conn.execute(
-                "SELECT id, name, description, price, duration, active FROM services WHERE active = 1 ORDER BY id"
-            ).fetchall()
-        ]
-        barbers = [
-            dict(row)
-            for row in conn.execute(
-                "SELECT id, name, specialty, email, photo, active FROM barbers WHERE active = 1 ORDER BY id"
-            ).fetchall()
-        ]
-        payload = {"settings": settings, "services": services, "barbers": barbers}
-        if include_admin:
-            payload["services"] = [
-                dict(row)
-                for row in conn.execute("SELECT id, name, description, price, duration, active FROM services WHERE active = 1 ORDER BY id").fetchall()
-            ]
-            payload["barbers"] = [
-                dict(row)
-                for row in conn.execute("SELECT id, name, specialty, email, photo, active FROM barbers WHERE active = 1 ORDER BY id").fetchall()
-            ]
-            payload["slots"] = [
-                dict(row)
-                for row in conn.execute("SELECT barber_id, weekday, time FROM barber_slots ORDER BY barber_id, weekday, time").fetchall()
-            ]
-            payload["appointments"] = read_appointments(conn)
-            payload["emailOutbox"] = [
-                dict(row)
-                for row in conn.execute(
-                    "SELECT id, appointment_id, recipient, subject, status, error, created_at FROM email_outbox ORDER BY id DESC LIMIT 50"
-                ).fetchall()
-            ]
-        return payload
-
-
-def read_appointments(conn):
-    rows = conn.execute(
-        """
-        SELECT a.id, a.client_name, a.client_phone, a.client_email, a.notes, a.date, a.time,
-               a.status, a.created_at,
-               COALESCE((
-                   SELECT GROUP_CONCAT(s2.name, ' + ')
-                   FROM appointment_services aps
-                   JOIN services s2 ON s2.id = aps.service_id
-                   WHERE aps.appointment_id = a.id
-               ), s.name) AS service_name,
-               COALESCE((
-                   SELECT SUM(s2.price)
-                   FROM appointment_services aps
-                   JOIN services s2 ON s2.id = aps.service_id
-                   WHERE aps.appointment_id = a.id
-               ), s.price) AS service_price,
-               COALESCE((
-                   SELECT SUM(s2.duration)
-                   FROM appointment_services aps
-                   JOIN services s2 ON s2.id = aps.service_id
-                   WHERE aps.appointment_id = a.id
-               ), s.duration) AS service_duration,
-               b.name AS barber_name, b.email AS barber_email
-        FROM appointments a
-        JOIN services s ON s.id = a.service_id
-        JOIN barbers b ON b.id = a.barber_id
-        ORDER BY a.date DESC, a.time DESC, a.id DESC
-        """
-    ).fetchall()
-    return [dict(row) for row in rows]
-
-
-def time_to_minutes(time_text):
-    hour, minute = [int(part) for part in time_text.split(":")]
-    return hour * 60 + minute
-
-
-def intervals_overlap(start_a, end_a, start_b, end_b):
-    return start_a < end_b and start_b < end_a
-
-
-def get_service_totals(conn, service_ids):
-    clean_ids = [int(service_id) for service_id in service_ids if int(service_id or 0) > 0]
-    if not clean_ids:
-        return {"ids": [], "duration": 30, "price": 0.0, "names": ""}
-    placeholders = ",".join("?" for _ in clean_ids)
-    rows = conn.execute(
-        f"SELECT id, name, price, duration FROM services WHERE id IN ({placeholders}) AND active = 1",
-        clean_ids,
-    ).fetchall()
-    if not rows:
-        return {"ids": [], "duration": 30, "price": 0.0, "names": ""}
-    by_id = {row["id"]: row for row in rows}
-    ordered = [by_id[service_id] for service_id in clean_ids if service_id in by_id]
-    return {
-        "ids": [row["id"] for row in ordered],
-        "duration": sum(int(row["duration"]) for row in ordered),
-        "price": sum(float(row["price"]) for row in ordered),
-        "names": " + ".join(row["name"] for row in ordered),
-    }
-
-
-def get_availability(barber_id, date_text, service_ids=None):
-    try:
-        appointment_date = datetime.strptime(date_text, "%Y-%m-%d").date()
-    except ValueError:
-        return []
-    weekday = appointment_date.weekday()
-    today = datetime.now().date()
-    now_time = datetime.now().strftime("%H:%M")
-    with db_connection() as conn:
-        service_totals = get_service_totals(conn, service_ids or [])
-        requested_duration = max(15, int(service_totals["duration"]))
-        slots = [
-            row["time"]
-            for row in conn.execute(
-                """
-                SELECT time FROM barber_slots
-                WHERE barber_id = ? AND weekday = ?
-                ORDER BY time
-                """,
-                (barber_id, weekday),
-            ).fetchall()
-        ]
-        busy_rows = conn.execute(
-            """
-            SELECT a.time,
-                   COALESCE((
-                       SELECT SUM(s2.duration)
-                       FROM appointment_services aps
-                       JOIN services s2 ON s2.id = aps.service_id
-                       WHERE aps.appointment_id = a.id
-                   ), s.duration) AS duration
-            FROM appointments a
-            JOIN services s ON s.id = a.service_id
-            WHERE a.barber_id = ? AND a.date = ? AND a.status = 'confirmed'
-            """,
-            (barber_id, date_text),
-        ).fetchall()
-        busy_intervals = [
-            (time_to_minutes(row["time"]), time_to_minutes(row["time"]) + int(row["duration"]))
-            for row in busy_rows
-        ]
-    schedule_end = time_to_minutes(slots[-1]) + 15 if slots else 0
+def read_products(conn, active_only=False):
+    where = "WHERE active = 1" if active_only else ""
     return [
-        {
-            "time": time,
-            "available": (
-                (appointment_date > today or time > now_time)
-                and time_to_minutes(time) + requested_duration <= schedule_end
-                and not any(
-                    intervals_overlap(time_to_minutes(time), time_to_minutes(time) + requested_duration, busy_start, busy_end)
-                    for busy_start, busy_end in busy_intervals
-                )
-            ),
-        }
-        for time in slots
+        dict(row)
+        for row in conn.execute(
+            f"SELECT id, name, description, price, category, badge, active FROM products {where} ORDER BY id"
+        ).fetchall()
     ]
 
 
-def normalize_money(value):
-    try:
-        return max(0, float(str(value).replace(",", ".")))
-    except ValueError:
-        return 0.0
+def read_delivery_areas(conn):
+    return [dict(row) for row in conn.execute("SELECT id, neighborhood, fee, eta FROM delivery_areas ORDER BY id").fetchall()]
+
+
+def read_orders(conn):
+    rows = conn.execute(
+        """
+        SELECT id, customer, customer_neighborhood AS customerNeighborhood, items, items_label AS itemsLabel,
+               subtotal, delivery_fee AS deliveryFee, total, status, created_at AS createdAt
+        FROM orders
+        ORDER BY id DESC
+        """
+    ).fetchall()
+    orders = []
+    for row in rows:
+        item = dict(row)
+        item["items"] = json.loads(item["items"])
+        orders.append(item)
+    return orders
+
+
+def public_data(include_admin=False):
+    with db_connection() as conn:
+        payload = {
+            "settings": read_settings(conn),
+            "products": read_products(conn, active_only=not include_admin),
+            "deliveryAreas": read_delivery_areas(conn),
+            "testimonials": TESTIMONIALS,
+        }
+        if include_admin:
+            payload["orders"] = read_orders(conn)
+        return payload
+
+
+def normalize_product(item):
+    return {
+        "id": int(item["id"]) if item.get("id") else None,
+        "name": str(item.get("name", "")).strip() or "Produto sem nome",
+        "description": str(item.get("description", "")).strip(),
+        "price": float(item.get("price") or 0),
+        "category": str(item.get("category", "Coxinhas")).strip() or "Coxinhas",
+        "badge": str(item.get("badge", "")).strip(),
+        "active": 1 if item.get("active") else 0,
+    }
+
+
+def normalize_area(item):
+    return {
+        "id": int(item["id"]) if item.get("id") else None,
+        "neighborhood": str(item.get("neighborhood", "")).strip() or "Bairro",
+        "fee": float(item.get("fee") or 0),
+        "eta": str(item.get("eta", "")).strip() or "30-40 min",
+    }
 
 
 def save_admin_data(payload):
     settings = DEFAULT_SETTINGS.copy()
-    settings.update({key: str(payload.get("settings", {}).get(key, settings[key])).strip() for key in settings})
-    services = payload.get("services", [])
-    barbers = payload.get("barbers", [])
-    slots = payload.get("slots", [])
+    raw_settings = payload.get("settings", {})
+    for key in settings:
+        value = raw_settings.get(key, settings[key])
+        settings[key] = float(value) if key == "promoPrice" else str(value).strip()
+
+    products = [normalize_product(item) for item in payload.get("products", [])]
+    areas = [normalize_area(item) for item in payload.get("deliveryAreas", [])]
 
     with db_connection() as conn:
-        conn.execute("PRAGMA foreign_keys = ON")
         conn.execute(
             "UPDATE settings SET payload = ?, updated_at = ? WHERE id = 1",
             (json.dumps(settings, ensure_ascii=False), utc_now().isoformat()),
         )
-
-        incoming_service_ids = []
-        for item in services:
-            name = str(item.get("name", "")).strip()
-            if not name:
-                continue
-            service_id = int(item.get("id") or 0)
-            values = (
-                name,
-                str(item.get("description", "")).strip(),
-                normalize_money(item.get("price", 0)),
-                max(5, int(item.get("duration") or 30)),
-                1 if item.get("active", True) else 0,
-            )
-            if service_id:
-                cursor = conn.execute(
-                    "UPDATE services SET name = ?, description = ?, price = ?, duration = ?, active = ? WHERE id = ?",
-                    (*values, service_id),
-                )
-                if cursor.rowcount == 0:
-                    conn.execute(
-                        "INSERT INTO services (id, name, description, price, duration, active) VALUES (?, ?, ?, ?, ?, ?)",
-                        (service_id, *values),
-                    )
-            else:
-                cursor = conn.execute(
-                    "INSERT INTO services (name, description, price, duration, active) VALUES (?, ?, ?, ?, ?)",
-                    values,
-                )
-                service_id = cursor.lastrowid
-            incoming_service_ids.append(service_id)
-
-        if incoming_service_ids:
-            placeholders = ",".join("?" for _ in incoming_service_ids)
-            conn.execute(f"UPDATE services SET active = 0 WHERE id NOT IN ({placeholders})", incoming_service_ids)
-
-        incoming_barber_ids = []
-        for item in barbers:
-            name = str(item.get("name", "")).strip()
-            if not name:
-                continue
-            barber_id = int(item.get("id") or 0)
-            values = (
-                name,
-                str(item.get("specialty", "")).strip(),
-                str(item.get("email", "")).strip(),
-                str(item.get("photo", "")).strip(),
-                1 if item.get("active", True) else 0,
-            )
-            if barber_id:
-                cursor = conn.execute(
-                    "UPDATE barbers SET name = ?, specialty = ?, email = ?, photo = ?, active = ? WHERE id = ?",
-                    (*values, barber_id),
-                )
-                if cursor.rowcount == 0:
-                    conn.execute(
-                        "INSERT INTO barbers (id, name, specialty, email, photo, active) VALUES (?, ?, ?, ?, ?, ?)",
-                        (barber_id, *values),
-                    )
-            else:
-                cursor = conn.execute(
-                    "INSERT INTO barbers (name, specialty, email, photo, active) VALUES (?, ?, ?, ?, ?)",
-                    values,
-                )
-                barber_id = cursor.lastrowid
-            incoming_barber_ids.append(barber_id)
-
-        if incoming_barber_ids:
-            placeholders = ",".join("?" for _ in incoming_barber_ids)
-            conn.execute(f"UPDATE barbers SET active = 0 WHERE id NOT IN ({placeholders})", incoming_barber_ids)
-
-        conn.execute("DELETE FROM barber_slots")
-        for item in slots:
-            try:
-                barber_id = int(item.get("barber_id"))
-                weekday = int(item.get("weekday"))
-                time = str(item.get("time", "")).strip()
-            except (TypeError, ValueError):
-                continue
-            if barber_id in incoming_barber_ids and 0 <= weekday <= 6 and len(time) == 5:
+        product_ids = []
+        for product in products:
+            if product["id"]:
                 conn.execute(
-                    "INSERT OR IGNORE INTO barber_slots (barber_id, weekday, time) VALUES (?, ?, ?)",
-                    (barber_id, weekday, time),
+                    """
+                    UPDATE products
+                    SET name = ?, description = ?, price = ?, category = ?, badge = ?, active = ?
+                    WHERE id = ?
+                    """,
+                    (
+                        product["name"],
+                        product["description"],
+                        product["price"],
+                        product["category"],
+                        product["badge"],
+                        product["active"],
+                        product["id"],
+                    ),
                 )
+                product_ids.append(product["id"])
+            else:
+                cursor = conn.execute(
+                    """
+                    INSERT INTO products (name, description, price, category, badge, active, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        product["name"],
+                        product["description"],
+                        product["price"],
+                        product["category"],
+                        product["badge"],
+                        product["active"],
+                        utc_now().isoformat(),
+                    ),
+                )
+                product_ids.append(cursor.lastrowid)
+        if product_ids:
+            placeholders = ",".join("?" for _ in product_ids)
+            conn.execute(f"DELETE FROM products WHERE id NOT IN ({placeholders})", product_ids)
+        else:
+            conn.execute("DELETE FROM products")
+
+        area_ids = []
+        for area in areas:
+            if area["id"]:
+                conn.execute(
+                    "UPDATE delivery_areas SET neighborhood = ?, fee = ?, eta = ? WHERE id = ?",
+                    (area["neighborhood"], area["fee"], area["eta"], area["id"]),
+                )
+                area_ids.append(area["id"])
+            else:
+                cursor = conn.execute(
+                    "INSERT INTO delivery_areas (neighborhood, fee, eta) VALUES (?, ?, ?)",
+                    (area["neighborhood"], area["fee"], area["eta"]),
+                )
+                area_ids.append(cursor.lastrowid)
+        if area_ids:
+            placeholders = ",".join("?" for _ in area_ids)
+            conn.execute(f"DELETE FROM delivery_areas WHERE id NOT IN ({placeholders})", area_ids)
+        else:
+            conn.execute("DELETE FROM delivery_areas")
 
 
-def create_appointment(payload):
-    name = str(payload.get("clientName", "")).strip()
-    phone = str(payload.get("clientPhone", "")).strip()
-    email = str(payload.get("clientEmail", "")).strip()
-    notes = str(payload.get("notes", "")).strip()
-    date_text = str(payload.get("date", "")).strip()
-    time = str(payload.get("time", "")).strip()
-    service_ids = payload.get("serviceIds")
-    if not isinstance(service_ids, list):
-        service_ids = [payload.get("serviceId")]
-    service_ids = [int(service_id or 0) for service_id in service_ids if int(service_id or 0) > 0]
-    service_id = service_ids[0] if service_ids else 0
-    barber_id = int(payload.get("barberId") or 0)
-
-    if not all([name, phone, date_text, time, service_id, barber_id]):
-        raise ValueError("Preencha nome, WhatsApp, servico, barbeiro, data e horario.")
-
-    available = get_availability(barber_id, date_text, service_ids)
-    if not any(slot["time"] == time and slot["available"] for slot in available):
-        raise ValueError("Esse horario acabou de ficar indisponivel. Escolha outro horario.")
-
-    created_at = datetime.now().strftime("%d/%m/%Y, %H:%M")
+def create_order(payload):
+    items = payload.get("items") or []
+    if not items:
+        raise ValueError("Carrinho vazio.")
+    clean_items = []
+    for item in items:
+        clean_items.append(
+            {
+                "name": str(item.get("name", "")).strip() or "Produto",
+                "qty": int(item.get("qty") or 1),
+                "price": float(item.get("price") or 0),
+            }
+        )
+    subtotal = sum(item["price"] * item["qty"] for item in clean_items)
+    delivery_fee = float(payload.get("deliveryFee") or 0)
+    total = subtotal + delivery_fee
+    items_label = ", ".join(f"{item['name']} x{item['qty']}" for item in clean_items)
     with db_connection() as conn:
-        service_totals = get_service_totals(conn, service_ids)
-        if not service_totals["ids"]:
-            raise ValueError("Escolha pelo menos um servico ativo.")
-        try:
-            cursor = conn.execute(
-                """
-                INSERT INTO appointments
-                (client_name, client_phone, client_email, notes, service_id, barber_id, date, time, status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
-                """,
-                (name, phone, email, notes, service_id, barber_id, date_text, time, created_at),
-            )
-            appointment_id = cursor.lastrowid
-            conn.executemany(
-                "INSERT OR IGNORE INTO appointment_services (appointment_id, service_id) VALUES (?, ?)",
-                [(appointment_id, service_id) for service_id in service_totals["ids"]],
-            )
-        except sqlite3.IntegrityError as exc:
-            raise ValueError("Esse horario ja foi ocupado por outro cliente.") from exc
-
-        appointment = conn.execute(
+        cursor = conn.execute(
             """
-            SELECT a.id, a.client_name, a.client_phone, a.client_email, a.notes, a.date, a.time, a.created_at,
-                   ? AS service_name, ? AS service_price, ? AS service_duration,
-                   b.name AS barber_name, b.email AS barber_email
-            FROM appointments a
-            JOIN services s ON s.id = a.service_id
-            JOIN barbers b ON b.id = a.barber_id
-            WHERE a.id = ?
+            INSERT INTO orders
+            (customer, customer_neighborhood, items, items_label, subtotal, delivery_fee, total, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (service_totals["names"], service_totals["price"], service_totals["duration"], appointment_id),
-        ).fetchone()
-        appointment_dict = dict(appointment)
-        notify_barber(conn, appointment_dict)
-        return appointment_dict
-
-
-def notify_barber(conn, appointment):
-    recipient = appointment.get("barber_email", "").strip()
-    if not recipient:
-        return
-    subject = f"Novo horario marcado - {appointment['date']} as {appointment['time']}"
-    body = (
-        f"Novo agendamento na Barbearia da Vinte\n\n"
-        f"Cliente: {appointment['client_name']}\n"
-        f"WhatsApp: {appointment['client_phone']}\n"
-        f"E-mail: {appointment['client_email'] or 'nao informado'}\n"
-        f"Servico: {appointment['service_name']}\n"
-        f"Valor: R$ {appointment['service_price']:.2f}\n"
-        f"Barbeiro: {appointment['barber_name']}\n"
-        f"Data: {appointment['date']}\n"
-        f"Horario: {appointment['time']}\n"
-        f"Observacoes: {appointment['notes'] or 'nenhuma'}\n"
-    )
-    status = "queued"
-    error = ""
-    try:
-        send_email(recipient, subject, body)
-        status = "sent"
-    except Exception as exc:
-        error = str(exc)[:500]
-    conn.execute(
-        """
-        INSERT INTO email_outbox (appointment_id, recipient, subject, body, status, error, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (appointment["id"], recipient, subject, body, status, error, datetime.now().strftime("%d/%m/%Y, %H:%M")),
-    )
-
-
-def send_email(recipient, subject, body):
-    host = os.environ.get("SMTP_HOST")
-    user = os.environ.get("SMTP_USER")
-    password = os.environ.get("SMTP_PASS")
-    sender = os.environ.get("SMTP_FROM", user or "")
-    port = int(os.environ.get("SMTP_PORT", "587"))
-    if not host or not sender:
-        raise RuntimeError("SMTP nao configurado. Defina SMTP_HOST, SMTP_USER, SMTP_PASS e SMTP_FROM.")
-    message = EmailMessage()
-    message["From"] = sender
-    message["To"] = recipient
-    message["Subject"] = subject
-    message.set_content(body)
-    with smtplib.SMTP(host, port, timeout=12) as smtp:
-        smtp.starttls()
-        if user and password:
-            smtp.login(user, password)
-        smtp.send_message(message)
+            (
+                str(payload.get("customer") or "Cliente sem nome").strip(),
+                str(payload.get("customerNeighborhood") or "").strip(),
+                json.dumps(clean_items, ensure_ascii=False),
+                items_label,
+                subtotal,
+                delivery_fee,
+                total,
+                "Novo",
+                utc_now().isoformat(),
+            ),
+        )
+        return {"id": cursor.lastrowid, "itemsLabel": items_label, "total": total}
 
 
 def create_session():
@@ -633,15 +381,11 @@ def create_session():
     return token, expires_at
 
 
-def cleanup_sessions(conn):
-    conn.execute("DELETE FROM admin_sessions WHERE expires_at <= ?", (utc_now().isoformat(),))
-
-
 def session_is_valid(token):
     if not token:
         return False
     with db_connection() as conn:
-        cleanup_sessions(conn)
+        conn.execute("DELETE FROM admin_sessions WHERE expires_at <= ?", (utc_now().isoformat(),))
         return conn.execute("SELECT token FROM admin_sessions WHERE token = ?", (token,)).fetchone() is not None
 
 
@@ -652,7 +396,7 @@ def delete_session(token):
 
 
 class AppHandler(BaseHTTPRequestHandler):
-    server_version = "BarbeariaDaVinte/1.0"
+    server_version = "Kimara/1.0"
 
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -661,43 +405,39 @@ class AppHandler(BaseHTTPRequestHandler):
         if parsed.path.startswith("/static/"):
             return self.serve_static(parsed.path)
         if parsed.path == "/api/public-data":
-            return self.send_json(HTTPStatus.OK, read_public_data(include_admin=False))
-        if parsed.path == "/api/availability":
-            query = parse_qs(parsed.query)
-            barber_id = int(query.get("barberId", ["0"])[0] or 0)
-            date_text = query.get("date", [""])[0]
-            service_ids = []
-            for raw_value in query.get("serviceIds", []) + query.get("serviceId", []):
-                service_ids.extend([item for item in raw_value.split(",") if item])
-            return self.send_json(HTTPStatus.OK, {"slots": get_availability(barber_id, date_text, service_ids)})
+            return self.send_json(HTTPStatus.OK, public_data(include_admin=False))
         if parsed.path == "/api/admin/session":
             return self.send_json(HTTPStatus.OK, {"logged": self.is_authenticated()})
         if parsed.path == "/api/admin/data":
             if not self.require_auth():
                 return
-            return self.send_json(HTTPStatus.OK, read_public_data(include_admin=True))
+            return self.send_json(HTTPStatus.OK, public_data(include_admin=True))
         if parsed.path == "/api/admin/export":
             if not self.require_auth():
                 return
-            return self.send_download(read_public_data(include_admin=True))
+            return self.send_download(public_data(include_admin=True))
         return self.send_error_json(HTTPStatus.NOT_FOUND, "Rota nao encontrada.")
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path == "/api/appointments":
-            return self.handle_create_appointment()
+        if parsed.path == "/api/orders":
+            return self.handle_create_order()
         if parsed.path == "/api/admin/login":
             return self.handle_login()
         if parsed.path == "/api/admin/logout":
             return self.handle_logout()
+        if parsed.path == "/api/admin/seed":
+            if not self.require_auth():
+                return
+            return self.handle_seed()
         if parsed.path == "/api/admin/save":
             if not self.require_auth():
                 return
             return self.handle_save()
-        if parsed.path == "/api/admin/appointment-status":
+        if parsed.path == "/api/admin/order-status":
             if not self.require_auth():
                 return
-            return self.handle_appointment_status()
+            return self.handle_order_status()
         return self.send_error_json(HTTPStatus.NOT_FOUND, "Rota nao encontrada.")
 
     def serve_file(self, path, content_type):
@@ -722,15 +462,15 @@ class AppHandler(BaseHTTPRequestHandler):
             content_type = "text/css; charset=utf-8"
         return self.serve_file(path, content_type)
 
-    def handle_create_appointment(self):
+    def handle_create_order(self):
         payload = self.read_json_body()
         if payload is None:
             return
         try:
-            appointment = create_appointment(payload)
+            order = create_order(payload)
         except ValueError as exc:
             return self.send_error_json(HTTPStatus.BAD_REQUEST, str(exc))
-        return self.send_json(HTTPStatus.CREATED, {"appointment": appointment})
+        return self.send_json(HTTPStatus.CREATED, {"order": order})
 
     def handle_login(self):
         payload = self.read_json_body()
@@ -738,8 +478,7 @@ class AppHandler(BaseHTTPRequestHandler):
             return
         user = str(payload.get("user", "")).strip()
         password = str(payload.get("pass", "")).strip()
-        password_hash = hashlib.sha256(password.encode("utf-8")).hexdigest()
-        if user != ADMIN_USER or password_hash != ADMIN_PASS_HASH:
+        if user != ADMIN_USER or hashlib.sha256(password.encode("utf-8")).hexdigest() != ADMIN_PASS_HASH:
             return self.send_error_json(HTTPStatus.UNAUTHORIZED, "Login invalido.")
         token, expires_at = create_session()
         body = json.dumps({"logged": True}).encode("utf-8")
@@ -765,19 +504,24 @@ class AppHandler(BaseHTTPRequestHandler):
         if payload is None:
             return
         save_admin_data(payload)
-        return self.send_json(HTTPStatus.OK, read_public_data(include_admin=True))
+        return self.send_json(HTTPStatus.OK, public_data(include_admin=True))
 
-    def handle_appointment_status(self):
+    def handle_seed(self):
+        seeded = seed_defaults_if_empty()
+        data = public_data(include_admin=True)
+        data["seeded"] = seeded
+        return self.send_json(HTTPStatus.OK, data)
+
+    def handle_order_status(self):
         payload = self.read_json_body()
         if payload is None:
             return
-        appointment_id = int(payload.get("id") or 0)
         status = str(payload.get("status", "")).strip()
-        if status not in {"confirmed", "canceled", "done"}:
+        if status not in {"Novo", "Em preparo", "Saiu para entrega", "Entregue"}:
             return self.send_error_json(HTTPStatus.BAD_REQUEST, "Status invalido.")
         with db_connection() as conn:
-            conn.execute("UPDATE appointments SET status = ? WHERE id = ?", (status, appointment_id))
-        return self.send_json(HTTPStatus.OK, read_public_data(include_admin=True))
+            conn.execute("UPDATE orders SET status = ? WHERE id = ?", (status, int(payload.get("id") or 0)))
+        return self.send_json(HTTPStatus.OK, public_data(include_admin=True))
 
     def read_json_body(self):
         content_length = int(self.headers.get("Content-Length", "0") or "0")
@@ -828,7 +572,7 @@ class AppHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Disposition", 'attachment; filename="barbearia-da-vinte-dados.json"')
+        self.send_header("Content-Disposition", 'attachment; filename="lanchonete-kimara-dados.json"')
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

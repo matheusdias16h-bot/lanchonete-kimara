@@ -3,31 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Barbearia da Vinte: agende corte, barba e outros servicos direto pelo site." />
-  <title>Barbearia da Vinte | Agendamento online</title>
+  <meta name="description" content="Lanchonete Kimara: coxinhas, enrolados, encomendas e pedidos pelo WhatsApp." />
+  <title>Lanchonete Kimara | Cardapio online</title>
   <style>
     :root {
-      --bg: #030303;
-      --ink: #f6f2e9;
-      --muted: #aaa49a;
-      --gold: #b59a66;
-      --gold-2: #d4bc82;
-      --panel: rgba(16, 16, 16, 0.9);
-      --panel-2: rgba(26, 24, 22, 0.88);
-      --line: rgba(181, 154, 102, 0.25);
-      --danger: #ff7d6b;
-      --ok: #75d59a;
-      --shadow: 0 26px 80px rgba(0, 0, 0, 0.55);
+      --bg: #050505;
+      --panel: rgba(18, 14, 10, 0.92);
+      --panel-2: rgba(255,255,255,0.06);
+      --ink: #fff8ea;
+      --muted: #b8afa1;
+      --yellow: #f7c948;
+      --orange: #f97316;
+      --red: #ff7564;
+      --green: #76d99a;
+      --line: rgba(247, 201, 72, 0.18);
+      --shadow: 0 28px 90px rgba(0,0,0,0.45);
       --max: 1180px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
       font-family: "Segoe UI", Arial, sans-serif;
       color: var(--ink);
-      background: #000;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(249,115,22,0.18), transparent 26%),
+        radial-gradient(circle at 90% 24%, rgba(247,201,72,0.13), transparent 24%),
+        #050505;
       overflow-x: hidden;
     }
     body::before {
@@ -35,1356 +37,929 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px);
-      background-size: 72px 72px;
-      opacity: 0.45;
+      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 58px 58px;
       mask-image: linear-gradient(#000, transparent 78%);
     }
     a { color: inherit; text-decoration: none; }
     button, input, select, textarea { font: inherit; }
     button { border: 0; cursor: pointer; color: inherit; }
-    img { display: block; max-width: 100%; }
-    .container { width: min(var(--max), calc(100% - 34px)); margin: 0 auto; }
+    input, select, textarea { color: var(--ink); }
+    .container { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 50;
-      background: rgba(0,0,0,0.84);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
+      z-index: 40;
+      background: rgba(0,0,0,0.82);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
     }
-    .nav {
-      min-height: 76px;
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 52px;
+      height: 52px;
+      border: 1px solid rgba(247,201,72,0.35);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle, #f7c948 0 28%, #f97316 29% 58%, #151008 59%);
+      box-shadow: 0 12px 34px rgba(249,115,22,0.2);
+      color: #140c00;
+      font-weight: 1000;
+      letter-spacing: 0;
+    }
+    .brand h1 { font-size: 1.15rem; color: var(--yellow); line-height: 1; }
+    .brand p { margin-top: 4px; color: var(--muted); font-size: 0.82rem; }
+    .menu { display: flex; align-items: center; gap: 24px; color: #ddd2c2; font-size: 0.88rem; }
+    .actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn, .btn {
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      padding: 0 16px;
+      font-weight: 800;
+      transition: 0.18s ease;
+    }
+    .icon-btn { width: 44px; padding: 0; display: none; place-items: center; }
+    .btn:hover, .icon-btn:hover { border-color: rgba(247,201,72,0.48); transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #160c00; border-color: transparent; }
+    .btn.danger { color: #ffd0c9; border-color: rgba(255,117,100,0.35); }
+    .hero { position: relative; padding: 76px 0 42px; border-bottom: 1px solid var(--line); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) 0.85fr; align-items: center; gap: 42px; }
+    .eyebrow { color: var(--yellow); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.78rem; font-weight: 900; }
+    h2 { margin-top: 16px; max-width: 720px; font-size: clamp(2.8rem, 8vw, 6.4rem); line-height: 0.92; letter-spacing: 0; }
+    .hero strong, .yellow { color: var(--yellow); }
+    .lead { margin-top: 22px; color: #ded3c3; line-height: 1.75; max-width: 630px; font-size: 1.05rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .promo-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(247,201,72,0.12), rgba(249,115,22,0.08)),
+        var(--panel);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      min-height: 340px;
+      display: grid;
+      align-content: center;
+    }
+    .promo-visual {
+      aspect-ratio: 16 / 10;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 34% 46%, #f6c34b 0 10%, #a94d12 11% 16%, transparent 17%),
+        radial-gradient(circle at 54% 48%, #f1b836 0 11%, #8d3f11 12% 17%, transparent 18%),
+        radial-gradient(circle at 74% 50%, #eab331 0 10%, #74310f 11% 16%, transparent 17%),
+        linear-gradient(135deg, #241006, #080604);
+      border: 1px solid rgba(247,201,72,0.18);
+      margin-bottom: 22px;
+    }
+    .promo-card h3 { font-size: 1.8rem; margin-top: 6px; }
+    .promo-card p { color: var(--muted); line-height: 1.6; margin-top: 10px; }
+    .promo-price { color: var(--yellow); font-size: 2rem; font-weight: 1000; margin-top: 14px; }
+    section { padding: 62px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+    h3 { font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1; }
+    .filters { display: grid; gap: 12px; width: min(430px, 100%); }
+    .search { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0 14px; min-height: 48px; }
+    .search input { flex: 1; background: transparent; border: 0; outline: 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { border: 1px solid var(--line); background: rgba(255,255,255,0.05); border-radius: 999px; min-height: 38px; padding: 0 14px; color: #ded3c3; font-weight: 800; }
+    .chip.active { background: var(--yellow); color: #160c00; border-color: transparent; }
+    .grid { display: grid; gap: 18px; }
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(36,16,4,0.72), rgba(12,12,12,0.9));
+      padding: 20px;
+      min-width: 0;
+    }
+    .product-top { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .badge { border-radius: 999px; background: rgba(247,201,72,0.12); color: var(--yellow); padding: 7px 10px; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
+    .price { color: var(--yellow); font-size: 1.12rem; font-weight: 1000; white-space: nowrap; }
+    .card h4 { font-size: 1.4rem; line-height: 1.1; }
+    .card p { margin-top: 10px; color: var(--muted); line-height: 1.55; }
+    .card-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 18px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .area-button {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
-    }
-    .brand img { width: 94px; height: 54px; object-fit: contain; }
-    .menu { display: flex; align-items: center; gap: 30px; color: #c7c0b7; font-size: 0.88rem; letter-spacing: 0.08em; text-transform: uppercase; }
-    .menu a { position: relative; }
-    .menu a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -11px; height: 2px; background: var(--gold); transform: scaleX(0); transition: 0.2s; }
-    .menu a:hover::after { transform: scaleX(1); }
-    .admin-open {
-      border: 1px solid var(--gold);
-      background: transparent;
-      padding: 13px 18px;
-      color: var(--gold-2);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.82rem;
-      border-radius: 3px;
-    }
-    .hero {
-      position: relative;
-      min-height: 760px;
-      padding: 72px 0 34px;
-      background:
-        linear-gradient(90deg, #000 0%, rgba(0,0,0,0.88) 32%, rgba(0,0,0,0.45) 70%, #000 100%),
-        url("/static/img/logo-barbeiro.jpg.jpeg") center 20% / min(760px, 72vw) auto no-repeat,
-        radial-gradient(circle at 84% 26%, rgba(181,154,102,0.24), transparent 20%),
-        linear-gradient(135deg, #090909, #050505);
-      border-bottom: 1px solid rgba(181,154,102,0.18);
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 250px;
-      background: linear-gradient(transparent, #000 82%);
-      pointer-events: none;
-    }
-    .hero-grid {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
-      gap: 48px;
-      align-items: start;
-    }
-    .eyebrow {
-      color: var(--gold-2);
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      font-weight: 800;
-      font-size: 0.76rem;
-    }
-    h1 {
-      margin-top: 20px;
-      font-size: clamp(3.2rem, 9vw, 7.6rem);
-      line-height: 0.9;
-      text-transform: uppercase;
-      letter-spacing: 0;
-      max-width: 620px;
-      text-shadow: 0 8px 38px rgba(0,0,0,0.7);
-    }
-    .hero-sub { margin-top: 20px; color: #d8d1c7; max-width: 520px; font-size: 1.1rem; line-height: 1.8; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      min-height: 48px;
-      padding: 0 22px;
-      border-radius: 4px;
-      background: var(--gold);
-      color: #111;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-size: 0.86rem;
-      transition: 0.2s ease;
-    }
-    .btn:hover { background: var(--gold-2); transform: translateY(-1px); }
-    .btn.secondary { background: transparent; color: var(--gold-2); border: 1px solid var(--gold); }
-    .btn.ghost { background: rgba(255,255,255,0.06); color: var(--ink); border: 1px solid rgba(255,255,255,0.1); }
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
-    .info-card {
-      margin-top: 36px;
-      background: rgba(11,11,11,0.82);
-      border: 1px solid rgba(181,154,102,0.23);
-      box-shadow: var(--shadow);
-      padding: 26px;
-      border-radius: 4px;
-    }
-    .info-line { display: grid; grid-template-columns: 36px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.07); color: #d1cbc2; }
-    .info-line:last-child { border-bottom: 0; }
-    .ico { color: var(--gold-2); font-size: 1.4rem; }
-    .info-line strong { display: block; color: var(--ink); margin-bottom: 4px; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.1em; }
-    .quick {
-      position: relative;
-      z-index: 2;
-      margin-top: 44px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      background: rgba(18,18,18,0.94);
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: var(--shadow);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .quick-item { min-height: 98px; display: grid; grid-template-columns: 54px 1fr; gap: 15px; align-items: center; padding: 22px; border-right: 1px dashed rgba(255,255,255,0.13); }
-    .quick-item:last-child { border-right: 0; }
-    .quick-item .ico { font-size: 2rem; color: #eee; }
-    .quick-item strong { display: block; text-transform: uppercase; font-size: 0.82rem; }
-    .quick-item span { display: block; color: var(--muted); margin-top: 5px; line-height: 1.45; font-size: 0.9rem; }
-    section { position: relative; padding: 78px 0; background: #000; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
-    .section-head h2 { font-size: clamp(1.8rem, 4vw, 3.1rem); line-height: 1; text-transform: uppercase; }
-    .section-head p { color: var(--muted); max-width: 520px; line-height: 1.7; }
-    .section-head h2::after { content: ""; display: block; width: 70px; height: 2px; margin-top: 14px; background: var(--gold); }
-    .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .service-card, .barber-card {
-      background: linear-gradient(180deg, rgba(28,28,28,0.95), rgba(10,10,10,0.95));
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 5px;
-      padding: 20px;
-      min-height: 154px;
-    }
-    .service-card strong { display: block; text-transform: uppercase; margin-bottom: 10px; }
-    .service-card p { color: var(--muted); line-height: 1.55; font-size: 0.92rem; min-height: 44px; }
-    .price { color: var(--gold-2); font-weight: 900; margin-top: 16px; }
-    .barbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .barber-photo {
-      height: 170px;
-      border-radius: 4px;
-      background:
-        linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.55)),
-        radial-gradient(circle at 50% 10%, rgba(255,255,255,0.16), transparent 28%),
-        linear-gradient(135deg, #27231f, #080808);
-      display: grid;
-      place-items: end center;
-      overflow: hidden;
-      margin: -10px -10px 18px;
-    }
-    .barber-photo span { font-size: 5.8rem; filter: grayscale(1); opacity: 0.88; line-height: 1; }
-    .barber-card { text-align: center; padding: 10px; }
-    .barber-card strong { display: block; text-transform: uppercase; }
-    .barber-card p { color: var(--muted); margin: 7px 0 16px; font-size: 0.92rem; }
-    .booking-band { background: linear-gradient(180deg, #0b0b0b, #000); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .booking-shell {
-      display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      gap: 28px;
-      align-items: start;
-    }
-    .booking-copy { padding: 34px 0; }
-    .booking-copy h2 { font-size: clamp(2.2rem, 5vw, 4.6rem); text-transform: uppercase; line-height: 0.95; }
-    .booking-copy p { margin-top: 18px; color: #c9c1b6; line-height: 1.8; max-width: 500px; }
-    .form-panel {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-    }
-    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
-    .field { display: grid; gap: 7px; }
-    .field.full { grid-column: 1 / -1; }
-    label { color: #d8d0c4; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; }
-    input, select, textarea {
       width: 100%;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: #080808;
-      color: var(--ink);
-      border-radius: 4px;
-      padding: 13px 14px;
-      outline: none;
+      gap: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      padding: 16px;
+      margin-top: 10px;
+      text-align: left;
     }
-    textarea { min-height: 88px; resize: vertical; }
-    input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(181,154,102,0.16); }
-    .slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
-    .service-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .service-choice {
-      display: grid;
-      grid-template-columns: 20px 1fr;
-      gap: 9px;
-      align-items: start;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: #080808;
-      border-radius: 4px;
-      padding: 11px;
-      cursor: pointer;
-    }
-    .service-choice input { width: 16px; margin-top: 2px; accent-color: var(--gold); }
-    .service-choice strong { display: block; color: var(--ink); font-size: 0.9rem; }
-    .service-choice span { display: block; color: var(--muted); margin-top: 3px; font-size: 0.78rem; line-height: 1.35; }
-    .booking-summary { color: var(--gold-2); font-weight: 800; margin-top: 8px; min-height: 20px; }
-    .slot {
-      min-height: 42px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: #0d0d0d;
-      border-radius: 4px;
-      color: #ddd;
-      font-weight: 800;
-    }
-    .slot[disabled] { opacity: 0.28; cursor: not-allowed; text-decoration: line-through; }
-    .slot.active { background: var(--gold); color: #111; border-color: var(--gold); }
-    .message { margin-top: 14px; min-height: 22px; color: var(--muted); line-height: 1.5; }
-    .message.ok { color: var(--ok); }
-    .message.err { color: var(--danger); }
-    .proof { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07); background: #060606; }
-    .proof div { padding: 28px 22px; display: flex; gap: 14px; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.07); text-transform: uppercase; color: #d9d3ca; }
-    .proof div:last-child { border-right: 0; }
-    footer { padding: 30px 0; background: #030303; color: #867d72; text-align: center; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem; }
-    .whatsapp {
+    .area-button.active { background: rgba(247,201,72,0.12); border-color: rgba(247,201,72,0.42); }
+    .map-frame { margin-top: 18px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: #111; }
+    iframe { display: block; width: 100%; height: 310px; border: 0; }
+    .testimonial-grid { grid-template-columns: repeat(3, 1fr); }
+    .cart {
       position: fixed;
-      right: 18px;
-      bottom: 18px;
-      width: 56px;
-      height: 56px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #16b45d;
-      color: white;
-      z-index: 40;
-      box-shadow: 0 14px 34px rgba(0,0,0,0.45);
-      font-size: 1.5rem;
+      right: 16px;
+      bottom: 16px;
+      z-index: 35;
+      width: min(430px, calc(100vw - 32px));
+      max-height: calc(100vh - 110px);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(5,5,5,0.94);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(16px);
     }
-    .admin-modal[hidden], [hidden] { display: none !important; }
-    .admin-modal {
+    .cart-head, .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .cart-item { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 12px; margin-top: 10px; }
+    .qty { display: flex; align-items: center; gap: 8px; }
+    .qty button { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.09); }
+    .field { display: grid; gap: 7px; margin-top: 12px; }
+    .field label { color: var(--muted); font-size: 0.85rem; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #070707;
+      padding: 12px;
+      outline: 0;
+    }
+    .totals { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 14px; margin-top: 12px; display: grid; gap: 8px; }
+    footer { border-top: 1px solid var(--line); padding: 46px 0 150px; color: var(--muted); background: rgba(0,0,0,0.55); }
+    .footer-grid { display: grid; grid-template-columns: 1.1fr 0.8fr 1.1fr; gap: 24px; }
+    .modal[hidden], [hidden] { display: none !important; }
+    .modal {
       position: fixed;
       inset: 0;
-      z-index: 80;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(10px);
-      padding: 24px;
+      z-index: 60;
+      background: rgba(0,0,0,0.86);
       overflow: auto;
+      padding: 24px 16px;
+      backdrop-filter: blur(12px);
     }
-    .admin-dialog {
+    .dialog {
       width: min(1180px, 100%);
       margin: 0 auto;
-      background: #0b0b0b;
-      border: 1px solid rgba(181,154,102,0.25);
-      border-radius: 6px;
-      box-shadow: var(--shadow);
-      padding: 24px;
-    }
-    .admin-head, .admin-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-    .admin-head h2 { text-transform: uppercase; margin-top: 8px; }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0; }
-    .tab { padding: 11px 15px; border: 1px solid rgba(255,255,255,0.12); background: #121212; border-radius: 4px; color: #d6d0c7; }
-    .tab.active { background: var(--gold); color: #111; border-color: var(--gold); font-weight: 900; }
-    .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .admin-card { border: 1px solid rgba(255,255,255,0.1); background: #101010; border-radius: 5px; padding: 16px; }
-    .admin-card h3 { text-transform: uppercase; margin-bottom: 14px; }
-    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .mini { color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
-    .list { display: grid; gap: 12px; }
-    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
-    .metric-card { border: 1px solid rgba(255,255,255,0.1); background: #101010; border-radius: 5px; padding: 16px; }
-    .metric-card span { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.74rem; font-weight: 800; }
-    .metric-card strong { display: block; margin-top: 8px; color: var(--gold-2); font-size: 1.75rem; line-height: 1; }
-    .filter-bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
-    .status-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border-radius: 3px; border: 1px solid rgba(181,154,102,0.35); color: var(--gold-2); font-weight: 800; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.08em; }
-    .client-card { border: 1px solid rgba(255,255,255,0.1); background: #0b0b0b; padding: 14px; border-radius: 4px; display: grid; gap: 7px; }
-    .appointment { border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid var(--gold); padding: 14px; border-radius: 4px; background: #0b0b0b; }
-    .appointment strong { display: block; margin-bottom: 6px; }
-    .app-agenda {
-      background: #070707;
-      border: 1px solid rgba(181,154,102,0.22);
+      border: 1px solid var(--line);
       border-radius: 8px;
-      overflow: hidden;
+      background: #080808;
       box-shadow: var(--shadow);
     }
-    .app-top {
-      min-height: 64px;
-      display: grid;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: center;
-      gap: 8px;
-      padding: 0 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      background: #0d0d0d;
-    }
-    .app-top strong { text-align: center; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
-    .round-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: #121212;
-      border: 1px solid rgba(181,154,102,0.25);
-      color: var(--gold-2);
-      font-size: 1.2rem;
-    }
-    .week-strip {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      padding: 14px 16px 12px;
-      background: #090909;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .day-pill {
-      display: grid;
-      gap: 7px;
-      place-items: center;
-      min-height: 58px;
-      border-radius: 7px;
-      color: var(--muted);
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .day-pill span { font-size: 0.72rem; text-transform: uppercase; font-weight: 800; }
-    .day-pill strong { font-size: 1rem; color: var(--ink); }
-    .day-pill.active { background: var(--gold); border-color: var(--gold); color: #111; }
-    .day-pill.active strong { color: #111; }
-    .barber-strip {
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px; border-bottom: 1px solid var(--line); }
+    .admin-shell { display: grid; grid-template-columns: 230px 1fr; }
+    .tabs { border-right: 1px solid var(--line); padding: 14px; }
+    .tab { width: 100%; text-align: left; border-radius: 8px; background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 13px; font-weight: 900; }
+    .tab.active { background: var(--yellow); color: #160c00; }
+    .admin-body { padding: 18px; min-width: 0; }
+    .metric-grid { grid-template-columns: repeat(4, 1fr); }
+    .editor-grid { grid-template-columns: 360px 1fr; }
+    .list { display: grid; gap: 12px; margin-top: 14px; }
+    .admin-item { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 14px; }
+    .admin-item .fields { display: grid; grid-template-columns: 1fr 120px 130px 120px auto; gap: 8px; align-items: center; margin-top: 10px; }
+    .order-grid { display: grid; grid-template-columns: 80px 1fr 1.4fr 160px 110px; gap: 12px; align-items: center; }
+    .message { margin-top: 12px; min-height: 22px; color: var(--muted); }
+    .message.ok { color: var(--green); }
+    .message.err { color: var(--red); }
+    .loading-box {
       display: flex;
-      gap: 14px;
-      overflow-x: auto;
-      padding: 16px;
-      background: #060606;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .barber-pill {
-      min-width: 104px;
-      display: grid;
-      gap: 8px;
-      place-items: center;
-      color: var(--muted);
-    }
-    .barber-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: #171717;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--gold-2);
-      font-weight: 900;
-    }
-    .barber-pill.active {
-      color: var(--ink);
-    }
-    .barber-pill.active .barber-avatar {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #111;
-    }
-    .barber-pill em {
-      font-style: normal;
-      min-width: 78px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      text-align: center;
-      font-size: 0.78rem;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
       background: rgba(255,255,255,0.05);
+      padding: 18px;
+      color: #ded3c3;
     }
-    .barber-pill.active em { background: #07131d; color: var(--gold-2); border: 1px solid rgba(181,154,102,0.3); }
-    .timeline {
-      position: relative;
-      padding: 14px 16px 18px;
-      background:
-        linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px) 0 54px / 100% 72px,
-        #050505;
-      min-height: 460px;
-    }
-    .time-row {
-      display: grid;
-      grid-template-columns: 64px 1fr;
-      min-height: 72px;
-      color: #81786f;
-      font-size: 0.78rem;
-    }
-    .time-row > span { padding-top: 3px; }
-    .timeline-event {
-      margin: 0 0 10px;
-      border-radius: 7px;
-      padding: 12px 14px;
-      border-left: 5px solid var(--gold);
-      background: rgba(181,154,102,0.18);
-      border-top: 1px solid rgba(181,154,102,0.24);
-      border-right: 1px solid rgba(181,154,102,0.16);
-      border-bottom: 1px solid rgba(181,154,102,0.16);
-      color: var(--ink);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.28);
-    }
-    .timeline-event.done { background: rgba(117,213,154,0.12); border-left-color: var(--ok); }
-    .timeline-event.canceled { background: rgba(255,125,107,0.12); border-left-color: var(--danger); opacity: 0.72; }
-    .timeline-event small { display: block; color: var(--gold-2); margin-bottom: 4px; font-weight: 800; }
-    .timeline-empty { margin: 16px 0 0 64px; color: var(--muted); }
-    .app-bottom {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      min-height: 72px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      background: #0b0b0b;
-    }
-    .bottom-tab {
-      display: grid;
-      place-items: center;
-      gap: 4px;
-      color: var(--muted);
-      font-size: 0.72rem;
-      background: transparent;
-    }
-    .bottom-tab span { font-size: 1.4rem; line-height: 1; }
-    .bottom-tab.active { color: var(--gold-2); }
-    .floating-add {
-      position: absolute;
-      right: 22px;
-      bottom: 86px;
-      width: 58px;
-      height: 58px;
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(247,201,72,0.22);
+      border-top-color: var(--yellow);
       border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: var(--gold);
-      color: #111;
-      font-size: 2rem;
-      font-weight: 600;
-      box-shadow: 0 18px 42px rgba(0,0,0,0.48);
+      animation: spin 0.8s linear infinite;
+      flex: 0 0 auto;
     }
-    .schedule-table { display: grid; gap: 10px; }
-    .day-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; align-items: start; }
-    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-    .chip { border: 1px solid rgba(255,255,255,0.12); background: #080808; color: #ddd; padding: 8px 10px; border-radius: 4px; }
-    .chip.active { background: var(--gold); color: #111; border-color: var(--gold); font-weight: 800; }
-
-    @media (max-width: 980px) {
-      .menu { display: none; }
-      .hero { min-height: auto; padding-top: 48px; background-size: min(640px, 110vw) auto; background-position: center 130px; }
-      .hero-grid, .booking-shell { grid-template-columns: 1fr; }
-      .info-card { max-width: 420px; }
-      .quick, .services, .barbers, .proof, .admin-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); }
-      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
-    @media (max-width: 640px) {
-      .nav { min-height: 68px; }
-      .brand img { width: 78px; }
-      .admin-open { padding: 10px 12px; font-size: 0.72rem; }
-      .hero { padding-bottom: 18px; }
-      .quick, .services, .barbers, .proof, .field-grid, .admin-grid, .metric-grid, .filter-bar { grid-template-columns: 1fr; }
-      .quick-item { border-right: 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+    @media (max-width: 900px) {
+      .menu, .actions { display: none; }
+      .icon-btn { display: grid; }
+      .menu.mobile-open, .actions.mobile-open { display: flex; position: absolute; left: 16px; right: 16px; top: 82px; flex-direction: column; align-items: stretch; background: #090909; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+      .actions.mobile-open { top: 242px; }
+      .hero-grid, .two-col, .admin-shell, .editor-grid, .footer-grid { grid-template-columns: 1fr; }
+      .product-grid, .testimonial-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .tabs { border-right: 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .tab { margin: 0; }
+      .admin-item .fields, .order-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .product-grid, .testimonial-grid, .metric-grid { grid-template-columns: 1fr; }
       .section-head { align-items: start; flex-direction: column; }
-      .slot-grid { grid-template-columns: repeat(3, 1fr); }
-      .service-choice-grid { grid-template-columns: 1fr; }
-      .day-row { grid-template-columns: 1fr; }
+      .cart { position: static; width: min(100% - 32px, 430px); margin: 20px auto; max-height: none; }
+      footer { padding-bottom: 46px; }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="container nav">
-      <a class="brand" href="#inicio" aria-label="Barbearia da Vinte"><img src="/static/img/logo-barbeiro.jpg.jpeg" alt="Logo da Barbearia da Vinte" /></a>
-      <nav class="menu">
-        <a href="#inicio">Inicio</a>
-        <a href="#servicos">Servicos</a>
-        <a href="#barbeiros">Barbeiros</a>
-        <a href="#agendamento">Agendamento</a>
-        <a href="#sobre">Sobre nos</a>
+      <a class="brand" href="#inicio">
+        <div class="mark">K</div>
+        <div>
+          <h1 id="store-name">Lanchonete Kimara</h1>
+          <p id="store-slogan">Coxinhas e enrolados top</p>
+        </div>
+      </a>
+      <nav class="menu" id="menu">
+        <a href="#cardapio">Cardapio</a>
+        <a href="#encomendas">Encomendas</a>
+        <a href="#entrega">Entrega</a>
+        <a href="#depoimentos">Depoimentos</a>
       </nav>
-      <button class="admin-open" id="open-admin" type="button" hidden>Area admin</button>
+      <div class="actions" id="actions">
+        <button class="btn" id="open-admin" type="button">Admin</button>
+        <button class="btn" id="seed-data" type="button">Popular dados</button>
+        <a class="btn primary" id="top-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+      <button class="icon-btn" id="mobile-toggle" type="button" aria-label="Abrir menu">☰</button>
     </div>
   </header>
 
   <main id="inicio">
     <section class="hero">
-      <div class="container">
-        <div class="hero-grid">
-          <div>
-            <span class="eyebrow" id="hero-tagline">Seu estilo. Sua identidade.</span>
-            <h1>Barbearia<br />da Vinte</h1>
-            <p class="hero-sub" id="hero-about">Mais que um corte. Uma experiencia feita para voce sair alinhado, no horario marcado e com atendimento de verdade.</p>
-            <div class="hero-actions">
-              <a class="btn" href="#agendamento">Agendar horario</a>
-              <a class="btn secondary" href="#servicos">Ver servicos</a>
-            </div>
-          </div>
-          <aside class="info-card">
-            <div class="info-line"><span class="ico">◷</span><p><strong>Atendimento</strong><span id="info-hours">Ter - Dom: 09h as 20h</span></p></div>
-            <div class="info-line"><span class="ico">⌖</span><p><strong>Endereco</strong><span id="info-address">Rua da Vinte, 20 - Centro</span></p></div>
-            <div class="info-line"><span class="ico">☏</span><p><strong>WhatsApp</strong><span id="info-phone">(11) 99999-9999</span></p></div>
-            <div class="info-line"><span class="ico">◎</span><p><strong>Instagram</strong><span id="info-instagram">@barbeariadavinte</span></p></div>
-          </aside>
-        </div>
-        <div class="quick">
-          <div class="quick-item"><span class="ico">▦</span><p><strong>Escolha o servico</strong><span>Veja valores e duracao.</span></p></div>
-          <div class="quick-item"><span class="ico">♙</span><p><strong>Escolha o barbeiro</strong><span>Marque com seu profissional.</span></p></div>
-          <div class="quick-item"><span class="ico">◴</span><p><strong>Escolha o horario</strong><span>Horarios ocupados somem.</span></p></div>
-          <div class="quick-item"><a class="btn" href="#agendamento">Agendar agora</a></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="servicos">
-      <div class="container">
-        <div class="section-head">
-          <h2>Nossos servicos</h2>
-          <p>Cortes, barba e acabamento com preco claro antes do cliente confirmar o horario.</p>
-        </div>
-        <div class="services" id="service-list"></div>
-      </div>
-    </section>
-
-    <section id="barbeiros">
-      <div class="container">
-        <div class="section-head">
-          <h2>Nossos barbeiros</h2>
-          <p>Cada barbeiro pode ter seu proprio e-mail e sua propria agenda dentro do painel admin.</p>
-        </div>
-        <div class="barbers" id="barber-list"></div>
-      </div>
-    </section>
-
-    <section class="booking-band" id="agendamento">
-      <div class="container booking-shell">
-        <div class="booking-copy">
-          <span class="eyebrow">Agendamento online</span>
-          <h2>Corte marcado, horario garantido.</h2>
-          <p>Quando o cliente confirma, o horario fica ocupado para todos os outros clientes. O barbeiro recebe o aviso no e-mail cadastrado na area admin.</p>
-        </div>
-        <form class="form-panel" id="booking-form">
-          <div class="field-grid">
-            <div class="field">
-              <label for="client-name">Nome</label>
-              <input id="client-name" name="clientName" required placeholder="Seu nome" />
-            </div>
-            <div class="field">
-              <label for="client-phone">WhatsApp</label>
-              <input id="client-phone" name="clientPhone" required placeholder="(11) 99999-9999" />
-            </div>
-            <div class="field">
-              <label for="client-email">E-mail</label>
-              <input id="client-email" name="clientEmail" type="email" placeholder="voce@email.com" />
-            </div>
-            <div class="field full">
-              <label>Servicos</label>
-              <div class="service-choice-grid" id="service-choice-list"></div>
-              <div class="booking-summary" id="booking-summary"></div>
-            </div>
-            <div class="field">
-              <label for="barber-select">Barbeiro</label>
-              <select id="barber-select" name="barberId" required></select>
-            </div>
-            <div class="field">
-              <label for="date-input">Data</label>
-              <input id="date-input" name="date" type="date" required />
-            </div>
-            <div class="field full">
-              <label>Horario livre</label>
-              <div class="slot-grid" id="slot-grid"></div>
-              <input id="time-input" name="time" type="hidden" required />
-            </div>
-            <div class="field full">
-              <label for="notes">Observacoes</label>
-              <textarea id="notes" name="notes" placeholder="Ex: quero manter o topo, alergia a algum produto..."></textarea>
-            </div>
-          </div>
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Salvamento real + pedidos no painel</p>
+          <h2>Agora a Kimara esta pronta para <strong>pedidos online</strong></h2>
+          <p class="lead">Monte o pedido, calcule a entrega por bairro e envie tudo pelo WhatsApp. Produtos, configuracoes e pedidos ficam salvos no servidor com atualizacao rapida no painel admin.</p>
           <div class="hero-actions">
-            <button class="btn" type="submit">Confirmar horario</button>
-            <a class="btn ghost" id="whatsapp-link" href="#" target="_blank" rel="noreferrer">WhatsApp</a>
+            <a class="btn primary" href="#cardapio">Ver cardapio</a>
+            <button class="btn" id="hero-admin" type="button">Abrir admin</button>
           </div>
-          <div class="message" id="booking-message" aria-live="polite"></div>
-        </form>
+        </div>
+        <aside class="promo-card">
+          <div class="promo-visual" aria-hidden="true"></div>
+          <p class="eyebrow">Promocao do dia</p>
+          <h3 id="promo-title">Combo Kimara</h3>
+          <p id="promo-text">2 coxinhas + 2 enrolados + refrigerante por preco especial.</p>
+          <div class="promo-price" id="promo-price">R$ 24,90</div>
+        </aside>
       </div>
     </section>
 
-    <div class="proof" id="sobre">
-      <div><span class="ico">❄</span><span>Ambiente climatizado</span></div>
-      <div><span class="ico">✂</span><span>Profissionais especializados</span></div>
-      <div><span class="ico">▥</span><span>Produtos premium</span></div>
-      <div><span class="ico">◈</span><span>Higiene e seguranca</span></div>
-    </div>
+    <section id="cardapio">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Cardapio com precos</p>
+            <h3>Produtos ao vivo</h3>
+          </div>
+          <div class="filters">
+            <label class="search">⌕ <input id="search" type="search" placeholder="Buscar produto" /></label>
+            <div class="chips" id="category-chips"></div>
+          </div>
+        </div>
+        <div class="loading-box" id="product-loading"><span class="spinner" aria-hidden="true"></span><span>Carregando produtos do banco...</span></div>
+        <div class="grid product-grid" id="product-list" hidden></div>
+        <p class="message" id="product-message"></p>
+      </div>
+    </section>
+
+    <section id="encomendas">
+      <div class="container two-col">
+        <div class="card">
+          <p class="eyebrow">Encomendas</p>
+          <h3>Pedidos para festas e eventos</h3>
+          <p>Receba pedidos grandes com atendimento rapido. Salgados por cento, combos e encomendas especiais entram no mesmo fluxo do painel.</p>
+        </div>
+        <div class="grid two-col">
+          <div class="card"><h4>Tempo real</h4><p>Pedidos aparecem no painel assim que sao salvos.</p></div>
+          <div class="card"><h4>Banco local</h4><p>Os dados ficam salvos no proprio servidor, sem depender de Firebase.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="entrega">
+      <div class="container two-col">
+        <div class="card">
+          <p class="eyebrow">Calculo de entrega</p>
+          <h3>Escolha seu bairro</h3>
+          <div id="delivery-list"></div>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Mapa</p>
+          <h3>Veja onde estamos</h3>
+          <p id="address-line"></p>
+          <div class="map-frame">
+            <iframe title="Mapa da Lanchonete Kimara" src="https://www.google.com/maps?q=Rua%20Santa%20Clara%2C%2015%20Mantiqueira%20Belo%20Horizonte%20MG%2031652383&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="depoimentos">
+      <div class="container">
+        <p class="eyebrow">Depoimentos</p>
+        <h3>Quem compra, recomenda</h3>
+        <div class="grid testimonial-grid" id="testimonial-list" style="margin-top:28px;"></div>
+      </div>
+    </section>
   </main>
 
-  <footer><span id="footer-name">Barbearia da Vinte</span> - Todos os direitos reservados.</footer>
-  <a class="whatsapp" id="floating-whatsapp" href="#" target="_blank" rel="noreferrer" aria-label="Chamar no WhatsApp">☏</a>
+  <aside class="cart" aria-label="Carrinho">
+    <div class="cart-head">
+      <div>
+        <p class="eyebrow">Carrinho</p>
+        <h4>Seu pedido</h4>
+      </div>
+      <strong id="cart-count">0</strong>
+    </div>
+    <div id="cart-body"></div>
+  </aside>
 
-  <section class="admin-modal" id="admin-modal" hidden role="dialog" aria-modal="true">
-    <div class="admin-dialog">
-      <div class="admin-head">
+  <footer>
+    <div class="container footer-grid">
+      <div><h4 class="yellow" id="footer-name">Lanchonete Kimara</h4><p style="margin-top:10px;">Coxinhas, enrolados e encomendas com atendimento rapido e sabor de verdade.</p></div>
+      <div><h4 class="yellow">Horario</h4><p id="footer-hours" style="margin-top:10px;"></p></div>
+      <div><h4 class="yellow">Contato</h4><p id="footer-phone" style="margin-top:10px;"></p><p id="footer-address" style="margin-top:8px;"></p></div>
+    </div>
+  </footer>
+
+  <section class="modal" id="admin-modal" hidden role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div class="dialog-head">
         <div>
-          <span class="eyebrow">Painel administrativo</span>
-          <h2>Gerenciar Barbearia da Vinte</h2>
-          <p class="mini">Login inicial: admin / 1234</p>
+          <p class="eyebrow">Area admin</p>
+          <h3 style="font-size:2rem;">Painel da Kimara</h3>
+          <p class="message">Login inicial: admin / 1234</p>
         </div>
-        <button class="btn secondary" id="close-admin" type="button">Fechar</button>
+        <button class="btn" id="close-admin" type="button">Fechar</button>
       </div>
 
-      <div id="login-shell" class="admin-card" style="margin-top:22px;">
-        <h3>Entrar</h3>
-        <form id="login-form" class="field-grid">
-          <div class="field"><label for="login-user">Usuario</label><input id="login-user" name="user" required /></div>
-          <div class="field"><label for="login-pass">Senha</label><input id="login-pass" name="pass" type="password" required /></div>
-          <div class="field full"><button class="btn" type="submit">Entrar no admin</button></div>
+      <div id="login-shell" class="admin-body">
+        <form id="login-form" class="card" style="max-width:420px;">
+          <div class="field"><label>Usuario</label><input name="user" value="admin" required /></div>
+          <div class="field"><label>Senha</label><input name="pass" type="password" value="1234" required /></div>
+          <button class="btn primary" type="submit" style="margin-top:14px;width:100%;">Entrar</button>
+          <p class="message" id="login-message"></p>
         </form>
-        <div class="message" id="login-message"></div>
       </div>
 
-      <div id="dashboard-shell" hidden>
-        <div class="admin-actions" style="margin-top:22px;">
-          <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="dashboard" type="button">Resumo</button>
-            <button class="tab" data-tab="agenda" type="button">Agenda</button>
-            <button class="tab" data-tab="clientes" type="button">Clientes</button>
-            <button class="tab" data-tab="barbeiros" type="button">Barbeiros</button>
-            <button class="tab" data-tab="servicos" type="button">Servicos</button>
-            <button class="tab" data-tab="horarios" type="button">Horarios</button>
-            <button class="tab" data-tab="site" type="button">Site</button>
-          </div>
-          <div class="row-actions">
-            <button class="btn secondary" id="export-admin" type="button">Exportar</button>
-            <button class="btn ghost" id="logout-admin" type="button">Sair</button>
-          </div>
-        </div>
-        <div class="message" id="admin-message"></div>
-
-        <div id="tab-dashboard" class="tab-panel">
-          <div class="app-agenda">
-            <div class="app-top">
-              <button class="round-icon" id="agenda-prev-week" type="button">‹</button>
-              <strong id="agenda-month-label">Agenda</strong>
-              <button class="round-icon" id="agenda-next-week" type="button">›</button>
+      <div id="admin-shell" class="admin-shell" hidden>
+        <aside class="tabs" id="tabs"></aside>
+        <div class="admin-body">
+          <div class="row" style="margin-bottom:16px; flex-wrap:wrap;">
+            <div class="row" style="justify-content:flex-start; flex-wrap:wrap;">
+              <button class="btn primary" id="save-admin" type="button">Salvar alteracoes</button>
+              <button class="btn" id="seed-admin" type="button">Popular dados iniciais</button>
+              <button class="btn" id="refresh-admin" type="button">Atualizar</button>
+              <a class="btn" href="/api/admin/export" target="_blank" rel="noopener">Exportar</a>
             </div>
-            <div class="week-strip" id="week-strip"></div>
-            <div class="barber-strip" id="agenda-barbers"></div>
-            <div class="timeline" id="agenda-timeline">
-              <button class="floating-add" type="button" data-tab-shortcut="agenda">+</button>
-            </div>
-            <div class="app-bottom">
-              <button class="bottom-tab" data-tab-shortcut="dashboard" type="button"><span>▣</span>Caixa</button>
-              <button class="bottom-tab" data-tab-shortcut="agenda" type="button"><span>▤</span>Comandas</button>
-              <button class="bottom-tab active" data-tab-shortcut="dashboard" type="button"><span>◴</span>Agenda</button>
-              <button class="bottom-tab" data-tab-shortcut="clientes" type="button"><span>♙</span>Clientes</button>
-              <button class="bottom-tab" data-tab-shortcut="site" type="button"><span>⚙</span>Menu</button>
-            </div>
+            <button class="btn" id="logout-admin" type="button">Sair</button>
           </div>
-          <div class="metric-grid" id="metric-grid" style="margin-top:16px;"></div>
-        </div>
-
-        <div id="tab-agenda" class="tab-panel" hidden>
-          <div class="admin-card">
-            <h3>Agendamentos</h3>
-            <div class="filter-bar">
-              <div class="field"><label for="appointment-search">Buscar</label><input id="appointment-search" placeholder="Cliente, telefone ou servico" /></div>
-              <div class="field"><label for="appointment-date-filter">Data</label><input id="appointment-date-filter" type="date" /></div>
-              <div class="field"><label for="appointment-barber-filter">Barbeiro</label><select id="appointment-barber-filter"></select></div>
-              <div class="field"><label for="appointment-status-filter">Status</label><select id="appointment-status-filter"><option value="">Todos</option><option value="confirmed">Confirmados</option><option value="done">Concluidos</option><option value="canceled">Cancelados</option></select></div>
-            </div>
-            <div class="list" id="appointment-list"></div>
-          </div>
-        </div>
-
-        <div id="tab-clientes" class="tab-panel" hidden>
-          <div class="admin-card">
-            <h3>Clientes</h3>
-            <div class="field" style="margin-bottom:14px;"><label for="client-search">Buscar cliente</label><input id="client-search" placeholder="Nome, telefone ou e-mail" /></div>
-            <div class="admin-grid" id="client-list"></div>
-          </div>
-        </div>
-
-        <div id="tab-barbeiros" class="tab-panel" hidden>
-          <div class="admin-actions"><h3>Barbeiros</h3><button class="btn secondary" id="add-barber" type="button">Adicionar barbeiro</button></div>
-          <div class="admin-grid" id="admin-barbers"></div>
-        </div>
-
-        <div id="tab-servicos" class="tab-panel" hidden>
-          <div class="admin-actions"><h3>Servicos</h3><button class="btn secondary" id="add-service" type="button">Adicionar servico</button></div>
-          <div class="admin-grid" id="admin-services"></div>
-        </div>
-
-        <div id="tab-horarios" class="tab-panel" hidden>
-          <div class="admin-card">
-            <h3>Horarios por barbeiro</h3>
-            <p class="mini">Clique nos horarios para ligar ou desligar. Os clientes so veem os horarios ativos e ainda livres.</p>
-            <div class="field" style="margin:16px 0;"><label for="schedule-barber">Barbeiro</label><select id="schedule-barber"></select></div>
-            <div class="schedule-table" id="schedule-table"></div>
-          </div>
-        </div>
-
-        <div id="tab-site" class="tab-panel" hidden>
-          <div class="admin-card">
-            <h3>Dados do site</h3>
-            <form id="settings-form" class="field-grid">
-              <div class="field"><label>Nome</label><input name="name" /></div>
-              <div class="field"><label>Slogan</label><input name="tagline" /></div>
-              <div class="field"><label>Telefone</label><input name="phone" /></div>
-              <div class="field"><label>WhatsApp com DDI</label><input name="whatsapp" /></div>
-              <div class="field"><label>Horario</label><input name="hours" /></div>
-              <div class="field"><label>Instagram</label><input name="instagram" /></div>
-              <div class="field full"><label>Endereco</label><input name="address" /></div>
-              <div class="field full"><label>Sobre</label><textarea name="about"></textarea></div>
-            </form>
-          </div>
+          <p class="message" id="admin-message"></p>
+          <div id="admin-content"></div>
         </div>
       </div>
     </div>
   </section>
 
   <script>
+    const $ = (id) => document.getElementById(id);
+    const categories = ["Todos", "Coxinhas", "Enrolados", "Encomendas"];
+    const tabs = [
+      ["dashboard", "Dashboard"],
+      ["products", "Produtos"],
+      ["orders", "Pedidos"],
+      ["delivery", "Entrega"],
+      ["promo", "Promocao"],
+      ["settings", "Configuracoes"],
+    ];
     const state = {
       settings: {},
-      services: [],
-      barbers: [],
-      slots: [],
-      appointments: [],
-      selectedTime: "",
+      products: [],
+      deliveryAreas: [],
+      testimonials: [],
+      orders: [],
+      cart: [],
+      selectedCategory: "Todos",
+      selectedNeighborhood: "Mantiqueira",
+      search: "",
       adminLogged: false,
-      activeTab: "dashboard",
-      appointmentSearch: "",
-      appointmentDate: "",
-      appointmentBarber: "",
-      appointmentStatus: "",
-      clientSearch: "",
-      agendaDate: new Date().toISOString().slice(0, 10),
-      agendaBarberId: "",
+      adminTab: "dashboard",
+      loadingPublic: true,
+      submittingOrder: false,
+      seedingData: false,
     };
-    const weekdays = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"];
-    const shortWeekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
-    const monthNames = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    const baseTimes = Array.from({ length: 44 }, (_, index) => {
-      const total = 9 * 60 + index * 15;
-      return String(Math.floor(total / 60)).padStart(2, "0") + ":" + String(total % 60).padStart(2, "0");
-    });
 
-    const $ = (id) => document.getElementById(id);
-    const money = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    const escapeHtml = (text) => String(text ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
-    const normalize = (text) => String(text ?? "").toLowerCase();
-    const todayIso = () => new Date().toISOString().slice(0, 10);
-    const statusLabel = (status) => ({ confirmed: "Confirmado", done: "Concluido", canceled: "Cancelado" }[status] || status);
-    const onlyDigits = (text) => String(text ?? "").replace(/\D/g, "");
+    function money(value) {
+      return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
     async function fetchJson(url, options = {}) {
       const response = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
         ...options,
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || "Nao foi possivel concluir.");
+      if (!response.ok) throw new Error(payload.error || "Falha na requisicao.");
       return payload;
     }
 
-    function setMessage(el, text, type = "") {
-      el.textContent = text;
-      el.className = "message " + type;
-    }
-
-    function whatsappUrl(text) {
-      const number = (state.settings.whatsapp || "").replace(/\D/g, "");
-      return "https://wa.me/" + number + "?text=" + encodeURIComponent(text || "Ola! Vim pelo site da Barbearia da Vinte.");
-    }
-
-    function renderPublic() {
-      $("hero-tagline").textContent = state.settings.tagline || "Seu estilo. Sua identidade.";
-      $("hero-about").textContent = state.settings.about || "";
-      $("info-hours").textContent = state.settings.hours || "";
-      $("info-address").textContent = state.settings.address || "";
-      $("info-phone").textContent = state.settings.phone || "";
-      $("info-instagram").textContent = state.settings.instagram || "";
-      $("footer-name").textContent = state.settings.name || "Barbearia da Vinte";
-      $("floating-whatsapp").href = whatsappUrl();
-      $("whatsapp-link").href = whatsappUrl("Ola! Quero marcar um horario na Barbearia da Vinte.");
-
-      $("service-list").innerHTML = state.services.map((service) => `
-        <article class="service-card">
-          <strong>${escapeHtml(service.name)}</strong>
-          <p>${escapeHtml(service.description || "Servico da barbearia.")}</p>
-          <div class="price">${money(service.price)} · ${escapeHtml(service.duration)} min</div>
-        </article>
-      `).join("");
-
-      $("barber-list").innerHTML = state.barbers.map((barber, index) => `
-        <article class="barber-card">
-          <div class="barber-photo">${barber.photo ? `<img src="${escapeHtml(barber.photo)}" alt="${escapeHtml(barber.name)}" />` : `<span>${["♙","♘","♗","♔"][index % 4]}</span>`}</div>
-          <strong>${escapeHtml(barber.name)}</strong>
-          <p>${escapeHtml(barber.specialty || "Barbeiro")}</p>
-          <a class="btn secondary" href="#agendamento" data-pick-barber="${barber.id}">Agendar</a>
-        </article>
-      `).join("");
-
-      $("service-choice-list").innerHTML = state.services.map((service, index) => `
-        <label class="service-choice">
-          <input type="checkbox" name="serviceIds" value="${service.id}" ${index === 0 ? "checked" : ""} />
-          <span><strong>${escapeHtml(service.name)}</strong><span>${money(service.price)} · ${escapeHtml(service.duration)} min</span></span>
-        </label>
-      `).join("");
-      document.querySelectorAll('input[name="serviceIds"]').forEach((input) => input.addEventListener("change", () => {
-        updateBookingSummary();
-        loadAvailability();
-      }));
-      $("barber-select").innerHTML = state.barbers.map((barber) => `<option value="${barber.id}">${escapeHtml(barber.name)}</option>`).join("");
-      document.querySelectorAll("[data-pick-barber]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          $("barber-select").value = btn.dataset.pickBarber;
-          loadAvailability();
-        });
-      });
-      loadAvailability();
-      updateBookingSummary();
-    }
-
-    function getSelectedServices() {
-      const selectedIds = Array.from(document.querySelectorAll('input[name="serviceIds"]:checked')).map((input) => Number(input.value));
-      return state.services.filter((service) => selectedIds.includes(Number(service.id)));
-    }
-
-    function updateBookingSummary() {
-      const selected = getSelectedServices();
-      const totalPrice = selected.reduce((sum, service) => sum + Number(service.price || 0), 0);
-      const totalDuration = selected.reduce((sum, service) => sum + Number(service.duration || 0), 0);
-      $("booking-summary").textContent = selected.length
-        ? `Total: ${money(totalPrice)} · ${totalDuration} min`
-        : "Escolha pelo menos um servico.";
+    function whatsappLink(text) {
+      const number = String(state.settings.whatsapp || "").replace(/\D/g, "");
+      return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
     }
 
     async function loadPublicData() {
-      const payload = await fetchJson("/api/public-data");
-      Object.assign(state, payload);
+      state.loadingPublic = true;
+      renderProducts();
+      const data = await fetchJson("/api/public-data");
+      Object.assign(state, data);
+      state.loadingPublic = false;
+      if (!state.deliveryAreas.some((item) => item.neighborhood === state.selectedNeighborhood) && state.deliveryAreas[0]) {
+        state.selectedNeighborhood = state.deliveryAreas[0].neighborhood;
+      }
       renderPublic();
     }
 
-    async function loadAvailability() {
-      const barberId = $("barber-select").value;
-      const date = $("date-input").value;
-      state.selectedTime = "";
-      $("time-input").value = "";
-      if (!barberId || !date) {
-        $("slot-grid").innerHTML = '<p class="mini">Escolha barbeiro e data para ver horarios.</p>';
-        return;
-      }
-      const serviceIds = getSelectedServices().map((service) => service.id).join(",");
-      if (!serviceIds) {
-        $("slot-grid").innerHTML = '<p class="mini">Escolha pelo menos um servico para ver horarios.</p>';
-        return;
-      }
-      const payload = await fetchJson(`/api/availability?barberId=${encodeURIComponent(barberId)}&date=${encodeURIComponent(date)}&serviceIds=${encodeURIComponent(serviceIds)}`);
-      $("slot-grid").innerHTML = payload.slots.length ? payload.slots.map((slot) => `
-        <button class="slot" type="button" ${slot.available ? "" : "disabled"} data-time="${slot.time}">${slot.time}</button>
-      `).join("") : '<p class="mini">Esse barbeiro nao tem horarios cadastrados nessa data.</p>';
-      document.querySelectorAll(".slot[data-time]").forEach((button) => {
+    function renderPublic() {
+      $("store-name").textContent = state.settings.name || "Lanchonete Kimara";
+      $("store-slogan").textContent = state.settings.slogan || "";
+      $("promo-title").textContent = state.settings.promoTitle || "";
+      $("promo-text").textContent = state.settings.promoText || "";
+      $("promo-price").textContent = money(state.settings.promoPrice);
+      $("address-line").textContent = state.settings.address || "";
+      $("footer-name").textContent = state.settings.name || "";
+      $("footer-hours").textContent = state.settings.hours || "";
+      $("footer-phone").textContent = state.settings.phoneDisplay || "";
+      $("footer-address").textContent = state.settings.address || "";
+      $("top-whatsapp").href = whatsappLink(`Ola! Quero fazer um pedido na ${state.settings.name}.`);
+      renderCategories();
+      renderProducts();
+      renderDelivery();
+      renderTestimonials();
+      renderCart();
+    }
+
+    function renderCategories() {
+      $("category-chips").innerHTML = categories.map((category) => `
+        <button class="chip ${state.selectedCategory === category ? "active" : ""}" data-category="${category}" type="button">${category}</button>
+      `).join("");
+      $("category-chips").querySelectorAll("button").forEach((button) => {
         button.addEventListener("click", () => {
-          document.querySelectorAll(".slot").forEach((item) => item.classList.remove("active"));
-          button.classList.add("active");
-          state.selectedTime = button.dataset.time;
-          $("time-input").value = state.selectedTime;
+          state.selectedCategory = button.dataset.category;
+          renderPublic();
         });
       });
     }
 
-    $("booking-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = event.currentTarget;
-      const formData = new FormData(form);
-      const selectedServices = getSelectedServices();
-      if (!selectedServices.length) {
-        setMessage($("booking-message"), "Escolha pelo menos um servico.", "err");
+    function renderProducts() {
+      $("product-loading").hidden = !state.loadingPublic;
+      $("product-list").hidden = state.loadingPublic;
+      if (state.loadingPublic) {
+        $("product-message").textContent = "";
+        $("product-list").innerHTML = "";
         return;
       }
-      if (!$("time-input").value) {
-        setMessage($("booking-message"), "Escolha um horario livre para confirmar.", "err");
-        return;
-      }
-      setMessage($("booking-message"), "Confirmando seu horario...", "");
-      try {
-        const payload = Object.fromEntries(formData.entries());
-        payload.serviceIds = selectedServices.map((service) => Number(service.id));
-        payload.serviceId = payload.serviceIds[0];
-        payload.barberId = Number(payload.barberId);
-        const response = await fetchJson("/api/appointments", { method: "POST", body: JSON.stringify(payload) });
-        form.reset();
-        setDefaultDate();
-        await loadAvailability();
-        setMessage($("booking-message"), `Horario confirmado com ${response.appointment.barber_name} em ${response.appointment.date} as ${response.appointment.time}.`, "ok");
-      } catch (error) {
-        setMessage($("booking-message"), error.message, "err");
-        await loadAvailability();
-      }
-    });
+      const search = state.search.trim().toLowerCase();
+      const products = state.products.filter((product) => {
+        const active = Number(product.active) === 1 || product.active === true;
+        const byCategory = state.selectedCategory === "Todos" || product.category === state.selectedCategory;
+        const bySearch = !search || String(product.name || "").toLowerCase().includes(search);
+        return active && byCategory && bySearch;
+      });
+      $("product-message").textContent = products.length ? "" : "Nenhum produto encontrado.";
+      $("product-list").innerHTML = products.map((product) => `
+        <article class="card">
+          <div class="product-top">
+            <span class="badge">${product.badge || "Kimara"}</span>
+            <span class="price">${money(product.price)}</span>
+          </div>
+          <h4>${escapeHtml(product.name)}</h4>
+          <p>${escapeHtml(product.description || "")}</p>
+          <div class="card-actions">
+            <button class="btn primary" data-add="${product.id}" type="button">Adicionar</button>
+            <a class="btn" href="${whatsappLink(`Ola! Quero pedir ${product.name} na ${state.settings.name}.`)}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+        </article>
+      `).join("");
+      $("product-list").querySelectorAll("[data-add]").forEach((button) => {
+        button.addEventListener("click", () => addToCart(Number(button.dataset.add)));
+      });
+    }
 
-    function setDefaultDate() {
-      const date = new Date();
-      date.setDate(date.getDate() + 1);
-      $("date-input").min = new Date().toISOString().slice(0, 10);
-      $("date-input").value = date.toISOString().slice(0, 10);
+    function renderDelivery() {
+      $("delivery-list").innerHTML = state.deliveryAreas.map((area) => `
+        <button class="area-button ${state.selectedNeighborhood === area.neighborhood ? "active" : ""}" data-neighborhood="${escapeAttr(area.neighborhood)}" type="button">
+          <span><strong>${escapeHtml(area.neighborhood)}</strong><br><small>Tempo medio ${escapeHtml(area.eta || "")}</small></span>
+          <strong class="yellow">${money(area.fee)}</strong>
+        </button>
+      `).join("");
+      $("delivery-list").querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.selectedNeighborhood = button.dataset.neighborhood;
+          renderPublic();
+        });
+      });
+    }
+
+    function renderTestimonials() {
+      $("testimonial-list").innerHTML = state.testimonials.map((item) => `
+        <article class="card"><div class="yellow">★★★★★</div><p>"${escapeHtml(item.text)}"</p><h4 class="yellow" style="margin-top:18px;">${escapeHtml(item.name)}</h4></article>
+      `).join("");
+    }
+
+    function currentDelivery() {
+      return state.deliveryAreas.find((item) => item.neighborhood === state.selectedNeighborhood) || state.deliveryAreas[0] || { fee: 0, neighborhood: "" };
+    }
+
+    function addToCart(id) {
+      const product = state.products.find((item) => Number(item.id) === Number(id));
+      if (!product) return;
+      const existing = state.cart.find((item) => Number(item.id) === Number(id));
+      if (existing) existing.qty += 1;
+      else state.cart.push({ id: product.id, name: product.name, price: Number(product.price), qty: 1 });
+      renderCart();
+    }
+
+    function changeQty(id, delta) {
+      state.cart = state.cart.map((item) => item.id === id ? { ...item, qty: Math.max(0, item.qty + delta) } : item).filter((item) => item.qty > 0);
+      renderCart();
+    }
+
+    function renderCart() {
+      $("cart-count").textContent = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      if (!state.cart.length) {
+        $("cart-body").innerHTML = `<p class="message">Adicione produtos para montar seu pedido.</p>`;
+        return;
+      }
+      const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const delivery = currentDelivery();
+      const deliveryFee = Number(delivery.fee || 0);
+      $("cart-body").innerHTML = `
+        <div class="field"><input id="customer-name" placeholder="Seu nome" /></div>
+        ${state.cart.map((item) => `
+          <div class="cart-item">
+            <div class="row">
+              <div><strong>${escapeHtml(item.name)}</strong><p class="message">${money(item.price)} cada</p></div>
+              <div class="qty"><button data-qty="${item.id}" data-delta="-1" type="button">-</button><strong>${item.qty}</strong><button data-qty="${item.id}" data-delta="1" type="button">+</button></div>
+            </div>
+          </div>
+        `).join("")}
+        <div class="field">
+          <label>Bairro da entrega</label>
+          <select id="cart-neighborhood">${state.deliveryAreas.map((area) => `<option ${area.neighborhood === state.selectedNeighborhood ? "selected" : ""}>${escapeHtml(area.neighborhood)}</option>`).join("")}</select>
+        </div>
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><strong>${money(subtotal)}</strong></div>
+          <div class="row"><span>Entrega</span><strong>${money(deliveryFee)}</strong></div>
+          <div class="row yellow"><span>Total</span><strong>${money(subtotal + deliveryFee)}</strong></div>
+        </div>
+        <button class="btn primary" id="create-order" type="button" style="margin-top:12px;width:100%;" ${state.submittingOrder ? "disabled" : ""}>${state.submittingOrder ? "Salvando pedido..." : "Salvar pedido e enviar no WhatsApp"}</button>
+      `;
+      $("cart-body").querySelectorAll("[data-qty]").forEach((button) => button.addEventListener("click", () => changeQty(Number(button.dataset.qty), Number(button.dataset.delta))));
+      $("cart-neighborhood").addEventListener("change", (event) => {
+        state.selectedNeighborhood = event.target.value;
+        renderPublic();
+      });
+      $("create-order").addEventListener("click", createOrder);
+    }
+
+    async function createOrder() {
+      if (!state.cart.length || state.submittingOrder) return;
+      state.submittingOrder = true;
+      renderCart();
+      const customer = $("customer-name").value.trim() || "Cliente sem nome";
+      const delivery = currentDelivery();
+      const deliveryFee = Number(delivery.fee || 0);
+      const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const total = subtotal + deliveryFee;
+      try {
+        await fetchJson("/api/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            customer,
+            customerNeighborhood: state.selectedNeighborhood,
+            deliveryFee,
+            items: state.cart,
+          }),
+        });
+        const lines = state.cart.map((item) => `- ${item.name} x${item.qty} = ${money(item.price * item.qty)}`).join("\n");
+        const text = `Ola! Acabei de fazer um pedido na ${state.settings.name}.\n\n${lines}\n\nBairro: ${state.selectedNeighborhood}\nEntrega: ${money(deliveryFee)}\nTotal: ${money(total)}`;
+        state.cart = [];
+        renderCart();
+        window.open(whatsappLink(text), "_blank", "noopener,noreferrer");
+        if (state.adminLogged) await refreshAdmin();
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        state.submittingOrder = false;
+        renderCart();
+      }
     }
 
     async function openAdmin() {
       $("admin-modal").hidden = false;
-      await checkSession();
-      if (state.adminLogged) await refreshAdmin();
-    }
-
-    function updateAdminView() {
-      $("login-shell").hidden = state.adminLogged;
-      $("dashboard-shell").hidden = !state.adminLogged;
-      document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === state.activeTab));
-      document.querySelectorAll(".tab-panel").forEach((panel) => panel.hidden = panel.id !== "tab-" + state.activeTab);
-    }
-
-    async function checkSession() {
       try {
-        const payload = await fetchJson("/api/admin/session");
-        state.adminLogged = Boolean(payload.logged);
+        const session = await fetchJson("/api/admin/session");
+        state.adminLogged = Boolean(session.logged);
+        updateAdminShell();
+        if (state.adminLogged) await refreshAdmin();
       } catch {
         state.adminLogged = false;
+        updateAdminShell();
       }
-      updateAdminView();
+    }
+
+    function updateAdminShell() {
+      $("login-shell").hidden = state.adminLogged;
+      $("admin-shell").hidden = !state.adminLogged;
+      if (state.adminLogged) renderAdmin();
     }
 
     async function refreshAdmin() {
-      const payload = await fetchJson("/api/admin/data");
-      Object.assign(state, payload);
+      const data = await fetchJson("/api/admin/data");
+      Object.assign(state, data);
       renderPublic();
       renderAdmin();
-    }
-
-    async function saveAdmin() {
-      setMessage($("admin-message"), "Salvando...", "");
-      const payload = {
-        settings: state.settings,
-        services: state.services,
-        barbers: state.barbers,
-        slots: state.slots,
-      };
-      const saved = await fetchJson("/api/admin/save", { method: "POST", body: JSON.stringify(payload) });
-      Object.assign(state, saved);
-      renderPublic();
-      renderAdmin();
-      setMessage($("admin-message"), "Alteracoes salvas.", "ok");
     }
 
     function renderAdmin() {
-      renderDashboard();
-      renderAppointments();
-      renderClients();
-      renderAdminBarbers();
-      renderAdminServices();
-      renderSettings();
-      renderSchedule();
-      updateAdminView();
-    }
-
-    function renderAppointments() {
-      $("appointment-barber-filter").innerHTML = '<option value="">Todos</option>' + state.barbers.map((barber) => `<option value="${barber.name}">${escapeHtml(barber.name)}</option>`).join("");
-      $("appointment-search").value = state.appointmentSearch;
-      $("appointment-date-filter").value = state.appointmentDate;
-      $("appointment-barber-filter").value = state.appointmentBarber;
-      $("appointment-status-filter").value = state.appointmentStatus;
-
-      const appointments = getFilteredAppointments();
-      $("appointment-list").innerHTML = appointments.length ? appointments.map((item) => `
-        <div class="appointment">
-          <strong>${escapeHtml(item.date)} as ${escapeHtml(item.time)} · ${escapeHtml(item.client_name)} <span class="status-tag">${escapeHtml(statusLabel(item.status))}</span></strong>
-          <p class="mini">${escapeHtml(item.service_name)} com ${escapeHtml(item.barber_name)} · ${money(item.service_price)}</p>
-          <p class="mini">WhatsApp: ${escapeHtml(item.client_phone)} · E-mail: ${escapeHtml(item.client_email || "nao informado")}</p>
-          <p class="mini">Criado em ${escapeHtml(item.created_at)}</p>
-          ${item.notes ? `<p class="mini">Obs: ${escapeHtml(item.notes)}</p>` : ""}
-          <div class="row-actions">
-            <a class="btn ghost" href="${escapeHtml(clientWhatsAppUrl(item))}" target="_blank" rel="noreferrer">WhatsApp</a>
-            <button class="btn ghost" data-status="done" data-id="${item.id}" type="button">Concluido</button>
-            <button class="btn secondary" data-status="canceled" data-id="${item.id}" type="button">Cancelar</button>
-          </div>
-        </div>
-      `).join("") : '<p class="mini">Nenhum agendamento encontrado com esses filtros.</p>';
-      document.querySelectorAll("[data-status]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          await fetchJson("/api/admin/appointment-status", { method: "POST", body: JSON.stringify({ id: Number(button.dataset.id), status: button.dataset.status }) });
-          await refreshAdmin();
-        });
-      });
-    }
-
-    function getFilteredAppointments() {
-      return state.appointments.filter((item) => {
-        const bucket = normalize([item.client_name, item.client_phone, item.client_email, item.service_name, item.barber_name].join(" "));
-        if (state.appointmentSearch && !bucket.includes(normalize(state.appointmentSearch))) return false;
-        if (state.appointmentDate && item.date !== state.appointmentDate) return false;
-        if (state.appointmentBarber && item.barber_name !== state.appointmentBarber) return false;
-        if (state.appointmentStatus && item.status !== state.appointmentStatus) return false;
-        return true;
-      });
-    }
-
-    function clientWhatsAppUrl(item) {
-      const number = onlyDigits(item.client_phone);
-      const text = `Ola, ${item.client_name}! Aqui e da Barbearia da Vinte sobre seu horario de ${item.date} as ${item.time}.`;
-      return number ? "https://wa.me/55" + number.replace(/^55/, "") + "?text=" + encodeURIComponent(text) : whatsappUrl(text);
-    }
-
-    function buildClients() {
-      const clients = new Map();
-      state.appointments.forEach((item) => {
-        const key = onlyDigits(item.client_phone) || normalize(item.client_name);
-        if (!clients.has(key)) {
-          clients.set(key, {
-            name: item.client_name,
-            phone: item.client_phone,
-            email: item.client_email,
-            visits: 0,
-            spent: 0,
-            lastDate: item.date,
-            lastService: item.service_name,
-          });
-        }
-        const client = clients.get(key);
-        if (item.status !== "canceled") {
-          client.visits += 1;
-          client.spent += Number(item.service_price || 0);
-        }
-        if (item.date >= client.lastDate) {
-          client.lastDate = item.date;
-          client.lastService = item.service_name;
-        }
-      });
-      return Array.from(clients.values()).sort((a, b) => b.lastDate.localeCompare(a.lastDate));
-    }
-
-    function renderClients() {
-      const query = normalize(state.clientSearch);
-      $("client-search").value = state.clientSearch;
-      const clients = buildClients().filter((client) => {
-        const bucket = normalize([client.name, client.phone, client.email].join(" "));
-        return !query || bucket.includes(query);
-      });
-      $("client-list").innerHTML = clients.length ? clients.map((client) => `
-        <div class="client-card">
-          <strong>${escapeHtml(client.name)}</strong>
-          <p class="mini">WhatsApp: ${escapeHtml(client.phone || "nao informado")}</p>
-          <p class="mini">E-mail: ${escapeHtml(client.email || "nao informado")}</p>
-          <p class="mini">Visitas: ${client.visits} · Total: ${money(client.spent)}</p>
-          <p class="mini">Ultimo servico: ${escapeHtml(client.lastService || "-")} em ${escapeHtml(client.lastDate || "-")}</p>
-          <div class="row-actions"><a class="btn ghost" href="${escapeHtml(clientWhatsAppUrl({ client_phone: client.phone, client_name: client.name, date: client.lastDate, time: "" }))}" target="_blank" rel="noreferrer">Chamar</a></div>
-        </div>
-      `).join("") : '<p class="mini">Nenhum cliente encontrado.</p>';
+      $("tabs").innerHTML = tabs.map(([id, label]) => `<button class="tab ${state.adminTab === id ? "active" : ""}" data-tab="${id}" type="button">${label}</button>`).join("");
+      $("tabs").querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
+        state.adminTab = button.dataset.tab;
+        renderAdmin();
+      }));
+      const renderers = { dashboard: renderDashboard, products: renderProductAdmin, orders: renderOrdersAdmin, delivery: renderDeliveryAdmin, promo: renderPromoAdmin, settings: renderSettingsAdmin };
+      renderers[state.adminTab]();
     }
 
     function renderDashboard() {
-      const today = todayIso();
-      if (!state.agendaBarberId && state.barbers.length) state.agendaBarberId = String(state.barbers[0].id);
-      const confirmed = state.appointments.filter((item) => item.status === "confirmed");
-      const todayAppointments = confirmed.filter((item) => item.date === today);
-      const futureAppointments = confirmed.filter((item) => item.date >= today);
-      const doneAppointments = state.appointments.filter((item) => item.status === "done");
-      const revenue = doneAppointments.reduce((sum, item) => sum + Number(item.service_price || 0), 0);
-      const clients = buildClients();
-      renderAppAgenda();
-
-      $("metric-grid").innerHTML = [
-        ["Hoje", todayAppointments.length],
-        ["Proximos", futureAppointments.length],
-        ["Clientes", clients.length],
-        ["Faturamento", money(revenue)],
-      ].map(([label, value]) => `<div class="metric-card"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
-
-    }
-
-    function parseLocalDate(iso) {
-      const [year, month, day] = iso.split("-").map(Number);
-      return new Date(year, month - 1, day);
-    }
-
-    function formatIso(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
-
-    function renderAppAgenda() {
-      const selected = parseLocalDate(state.agendaDate);
-      $("agenda-month-label").textContent = `${monthNames[selected.getMonth()]} ${selected.getFullYear()}`;
-      const weekStart = new Date(selected);
-      weekStart.setDate(selected.getDate() - selected.getDay());
-      const days = Array.from({ length: 7 }, (_, index) => {
-        const day = new Date(weekStart);
-        day.setDate(weekStart.getDate() + index);
-        return day;
-      });
-      $("week-strip").innerHTML = days.map((day) => {
-        const iso = formatIso(day);
-        return `<button class="day-pill ${iso === state.agendaDate ? "active" : ""}" data-agenda-date="${iso}" type="button"><span>${shortWeekdays[day.getDay()]}</span><strong>${day.getDate()}</strong></button>`;
-      }).join("");
-
-      $("agenda-barbers").innerHTML = state.barbers.map((barber) => `
-        <button class="barber-pill ${String(barber.id) === String(state.agendaBarberId) ? "active" : ""}" data-agenda-barber="${barber.id}" type="button">
-          <span class="barber-avatar">${escapeHtml((barber.name || "?").slice(0, 1))}</span>
-          <em>${escapeHtml(barber.name)}</em>
-        </button>
-      `).join("");
-
-      const selectedBarber = state.barbers.find((barber) => String(barber.id) === String(state.agendaBarberId));
-      const dayItems = state.appointments
-        .filter((item) => item.date === state.agendaDate)
-        .filter((item) => !selectedBarber || item.barber_name === selectedBarber.name)
-        .sort((a, b) => a.time.localeCompare(b.time));
-      const byHour = new Map();
-      dayItems.forEach((item) => {
-        const hour = item.time.slice(0, 2) + ":00";
-        if (!byHour.has(hour)) byHour.set(hour, []);
-        byHour.get(hour).push(item);
-      });
-      const rows = baseTimes.map((hour) => `
-        <div class="time-row">
-          <span>${hour}</span>
-          <div>${(byHour.get(hour) || []).map((item) => `
-            <div class="timeline-event ${escapeHtml(item.status)}">
-              <small>${escapeHtml(item.time)} · ${escapeHtml(statusLabel(item.status))}</small>
-              <strong>${escapeHtml(item.service_name)} - ${escapeHtml(item.client_name)}</strong>
-              <p class="mini">${escapeHtml(item.client_phone)} · ${money(item.service_price)}</p>
-            </div>
-          `).join("")}</div>
+      const revenue = state.orders.reduce((sum, item) => sum + Number(item.total || 0), 0);
+      const openOrders = state.orders.filter((item) => item.status !== "Entregue").length;
+      $("admin-content").innerHTML = `
+        <div class="grid metric-grid">
+          ${metric("Faturamento", money(revenue))}
+          ${metric("Pedidos abertos", openOrders)}
+          ${metric("Produtos ativos", state.products.filter((item) => item.active).length)}
+          ${metric("Bairros", state.deliveryAreas.length)}
         </div>
-      `).join("");
-      $("agenda-timeline").innerHTML = rows + (dayItems.length ? "" : '<p class="timeline-empty">Nenhum horario nessa data para este barbeiro.</p>') + '<button class="floating-add" type="button" data-tab-shortcut="agenda">+</button>';
-
-      document.querySelectorAll("[data-agenda-date]").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.agendaDate = button.dataset.agendaDate;
-          renderDashboard();
-        });
-      });
-      document.querySelectorAll("[data-agenda-barber]").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.agendaBarberId = button.dataset.agendaBarber;
-          renderDashboard();
-        });
-      });
-      bindTabShortcuts();
+        <div class="card" style="margin-top:18px;"><h4>Pedidos recentes ao vivo</h4><div class="list">${state.orders.slice(0, 8).map(orderCard).join("") || "<p class='message'>Nenhum pedido ainda.</p>"}</div></div>
+      `;
+      bindOrderStatus();
     }
 
-    function renderAdminBarbers() {
-      $("admin-barbers").innerHTML = state.barbers.map((barber, index) => `
-        <div class="admin-card">
-          <h3>Barbeiro ${index + 1}</h3>
-          <div class="field-grid">
-            <div class="field"><label>Nome</label><input data-barber="${index}" data-field="name" value="${escapeHtml(barber.name)}" /></div>
-            <div class="field"><label>Especialidade</label><input data-barber="${index}" data-field="specialty" value="${escapeHtml(barber.specialty)}" /></div>
-            <div class="field full"><label>E-mail para receber agendamento</label><input data-barber="${index}" data-field="email" value="${escapeHtml(barber.email)}" /></div>
-            <div class="field full"><label>URL da foto</label><input data-barber="${index}" data-field="photo" value="${escapeHtml(barber.photo)}" /></div>
+    function metric(label, value) {
+      return `<div class="card"><p>${label}</p><h4 class="yellow" style="margin-top:8px;">${value}</h4></div>`;
+    }
+
+    function renderProductAdmin() {
+      $("admin-content").innerHTML = `
+        <div class="grid editor-grid">
+          <div class="card">
+            <h4>Cadastrar produto</h4>
+            <div class="field"><label>Nome</label><input id="new-product-name" /></div>
+            <div class="field"><label>Descricao</label><textarea id="new-product-description"></textarea></div>
+            <div class="field"><label>Preco</label><input id="new-product-price" type="number" step="0.01" /></div>
+            <div class="field"><label>Categoria</label><select id="new-product-category"><option>Coxinhas</option><option>Enrolados</option><option>Encomendas</option></select></div>
+            <div class="field"><label>Selo</label><input id="new-product-badge" value="Novo" /></div>
+            <button class="btn primary" id="add-product" type="button" style="margin-top:12px;width:100%;">Adicionar produto</button>
           </div>
-          <div class="row-actions"><button class="btn secondary" data-remove-barber="${index}" type="button">Remover</button></div>
+          <div class="card"><h4>Produtos salvos</h4><div class="list">${state.products.map((product, index) => productEditor(product, index)).join("")}</div></div>
         </div>
-      `).join("");
-      bindAdminInputs();
+      `;
+      $("add-product").addEventListener("click", () => {
+        state.products.push({
+          name: $("new-product-name").value,
+          description: $("new-product-description").value,
+          price: Number($("new-product-price").value || 0),
+          category: $("new-product-category").value,
+          badge: $("new-product-badge").value,
+          active: 1,
+        });
+        renderProductAdmin();
+      });
+      bindProductInputs();
     }
 
-    function renderAdminServices() {
-      $("admin-services").innerHTML = state.services.map((service, index) => `
-        <div class="admin-card">
-          <h3>Servico ${index + 1}</h3>
-          <div class="field-grid">
-            <div class="field"><label>Nome</label><input data-service="${index}" data-field="name" value="${escapeHtml(service.name)}" /></div>
-            <div class="field"><label>Valor</label><input data-service="${index}" data-field="price" type="number" min="0" step="0.01" value="${escapeHtml(service.price)}" /></div>
-            <div class="field"><label>Duracao min.</label><input data-service="${index}" data-field="duration" type="number" min="5" value="${escapeHtml(service.duration)}" /></div>
-            <div class="field full"><label>Descricao</label><textarea data-service="${index}" data-field="description">${escapeHtml(service.description)}</textarea></div>
+    function productEditor(product, index) {
+      return `
+        <div class="admin-item">
+          <strong>${escapeHtml(product.name || "Produto")}</strong>
+          <div class="fields">
+            <input data-product="${index}" data-key="name" value="${escapeAttr(product.name || "")}" />
+            <input data-product="${index}" data-key="price" type="number" step="0.01" value="${Number(product.price || 0)}" />
+            <select data-product="${index}" data-key="category">${["Coxinhas","Enrolados","Encomendas"].map((cat) => `<option ${product.category === cat ? "selected" : ""}>${cat}</option>`).join("")}</select>
+            <input data-product="${index}" data-key="badge" value="${escapeAttr(product.badge || "")}" />
+            <button class="btn danger" data-remove-product="${index}" type="button">Excluir</button>
           </div>
-          <div class="row-actions"><button class="btn secondary" data-remove-service="${index}" type="button">Remover</button></div>
+          <div class="field"><textarea data-product="${index}" data-key="description">${escapeHtml(product.description || "")}</textarea></div>
+          <label style="display:flex; gap:8px; align-items:center; margin-top:10px;"><input data-product-active="${index}" type="checkbox" ${product.active ? "checked" : ""} /> Ativo</label>
         </div>
-      `).join("");
-      bindAdminInputs();
+      `;
     }
 
-    function renderSettings() {
-      const form = $("settings-form");
-      Object.keys(state.settings).forEach((key) => {
-        if (form.elements[key]) form.elements[key].value = state.settings[key] || "";
-      });
+    function bindProductInputs() {
+      $("admin-content").querySelectorAll("[data-product]").forEach((input) => input.addEventListener("input", () => {
+        const product = state.products[Number(input.dataset.product)];
+        product[input.dataset.key] = input.dataset.key === "price" ? Number(input.value || 0) : input.value;
+      }));
+      $("admin-content").querySelectorAll("[data-product-active]").forEach((input) => input.addEventListener("change", () => {
+        state.products[Number(input.dataset.productActive)].active = input.checked ? 1 : 0;
+      }));
+      $("admin-content").querySelectorAll("[data-remove-product]").forEach((button) => button.addEventListener("click", () => {
+        state.products.splice(Number(button.dataset.removeProduct), 1);
+        renderProductAdmin();
+      }));
     }
 
-    function renderSchedule() {
-      const previousBarber = $("schedule-barber").value;
-      $("schedule-barber").innerHTML = state.barbers.map((barber) => `<option value="${barber.id}">${escapeHtml(barber.name)}</option>`).join("");
-      if (previousBarber && state.barbers.some((barber) => String(barber.id) === previousBarber)) {
-        $("schedule-barber").value = previousBarber;
-      }
-      const barberId = Number($("schedule-barber").value || state.barbers[0]?.id || 0);
-      $("schedule-table").innerHTML = weekdays.map((day, dayIndex) => `
-        <div class="day-row">
-          <strong>${day}</strong>
-          <div class="chips">${baseTimes.map((time) => {
-            const active = state.slots.some((slot) => Number(slot.barber_id) === barberId && Number(slot.weekday) === dayIndex && slot.time === time);
-            return `<button class="chip ${active ? "active" : ""}" data-day="${dayIndex}" data-schedule-time="${time}" type="button">${time}</button>`;
-          }).join("")}</div>
+    function renderOrdersAdmin() {
+      $("admin-content").innerHTML = `<div class="card"><h4>Pedidos em tempo real</h4><div class="list">${state.orders.map(orderCard).join("") || "<p class='message'>Nenhum pedido ainda.</p>"}</div></div>`;
+      bindOrderStatus();
+    }
+
+    function orderCard(order) {
+      return `
+        <div class="admin-item order-grid">
+          <strong>#${String(order.id).padStart(4, "0")}</strong>
+          <span>${escapeHtml(order.customer)}</span>
+          <span>${escapeHtml(order.itemsLabel || "")}<br><small>${escapeHtml(order.customerNeighborhood || "")}</small></span>
+          <select data-order="${order.id}">${["Novo","Em preparo","Saiu para entrega","Entregue"].map((status) => `<option ${order.status === status ? "selected" : ""}>${status}</option>`).join("")}</select>
+          <strong class="yellow">${money(order.total)}</strong>
         </div>
-      `).join("");
-      document.querySelectorAll("[data-schedule-time]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const weekday = Number(button.dataset.day);
-          const time = button.dataset.scheduleTime;
-          const existing = state.slots.findIndex((slot) => Number(slot.barber_id) === barberId && Number(slot.weekday) === weekday && slot.time === time);
-          if (existing >= 0) state.slots.splice(existing, 1);
-          else state.slots.push({ barber_id: barberId, weekday, time });
-          await saveAdmin();
-        });
-      });
+      `;
     }
 
-    function bindAdminInputs() {
-      document.querySelectorAll("[data-barber]").forEach((input) => {
-        input.addEventListener("change", async () => {
-          state.barbers[Number(input.dataset.barber)][input.dataset.field] = input.value;
-          await saveAdmin();
-        });
-      });
-      document.querySelectorAll("[data-service]").forEach((input) => {
-        input.addEventListener("change", async () => {
-          const service = state.services[Number(input.dataset.service)];
-          service[input.dataset.field] = input.type === "number" ? Number(input.value) : input.value;
-          await saveAdmin();
-        });
-      });
-      document.querySelectorAll("[data-remove-barber]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          state.barbers.splice(Number(button.dataset.removeBarber), 1);
-          await saveAdmin();
-        });
-      });
-      document.querySelectorAll("[data-remove-service]").forEach((button) => {
-        button.addEventListener("click", async () => {
-          state.services.splice(Number(button.dataset.removeService), 1);
-          await saveAdmin();
-        });
-      });
+    function bindOrderStatus() {
+      $("admin-content").querySelectorAll("[data-order]").forEach((select) => select.addEventListener("change", async () => {
+        await fetchJson("/api/admin/order-status", { method: "POST", body: JSON.stringify({ id: Number(select.dataset.order), status: select.value }) });
+        await refreshAdmin();
+      }));
     }
 
-    $("settings-form").addEventListener("change", async (event) => {
-      if (event.target.name) {
-        state.settings[event.target.name] = event.target.value;
-        await saveAdmin();
-      }
-    });
-    $("add-barber").addEventListener("click", async () => {
-      state.barbers.push({ name: "Novo barbeiro", specialty: "Especialidade", email: "", photo: "", active: 1 });
-      await saveAdmin();
-    });
-    $("add-service").addEventListener("click", async () => {
-      state.services.push({ name: "Novo servico", description: "", price: 0, duration: 30, active: 1 });
-      await saveAdmin();
-    });
-    $("schedule-barber").addEventListener("change", renderSchedule);
-    $("appointment-search").addEventListener("input", (event) => {
-      state.appointmentSearch = event.target.value;
-      renderAppointments();
-    });
-    $("appointment-date-filter").addEventListener("change", (event) => {
-      state.appointmentDate = event.target.value;
-      renderAppointments();
-    });
-    $("appointment-barber-filter").addEventListener("change", (event) => {
-      state.appointmentBarber = event.target.value;
-      renderAppointments();
-    });
-    $("appointment-status-filter").addEventListener("change", (event) => {
-      state.appointmentStatus = event.target.value;
-      renderAppointments();
-    });
-    $("client-search").addEventListener("input", (event) => {
-      state.clientSearch = event.target.value;
-      renderClients();
-    });
-    $("agenda-prev-week").addEventListener("click", () => {
-      const date = parseLocalDate(state.agendaDate);
-      date.setDate(date.getDate() - 7);
-      state.agendaDate = formatIso(date);
-      renderDashboard();
-    });
-    $("agenda-next-week").addEventListener("click", () => {
-      const date = parseLocalDate(state.agendaDate);
-      date.setDate(date.getDate() + 7);
-      state.agendaDate = formatIso(date);
-      renderDashboard();
-    });
-    function bindTabShortcuts() {
-      document.querySelectorAll("[data-tab-shortcut]").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.activeTab = button.dataset.tabShortcut;
-          updateAdminView();
-        });
+    function renderDeliveryAdmin() {
+      $("admin-content").innerHTML = `<div class="card"><div class="row"><h4>Bairros atendidos</h4><button class="btn" id="add-area" type="button">Adicionar bairro</button></div><div class="list">${state.deliveryAreas.map((area, index) => areaEditor(area, index)).join("")}</div></div>`;
+      $("add-area").addEventListener("click", () => {
+        state.deliveryAreas.push({ neighborhood: "Novo bairro", fee: 0, eta: "30-40 min" });
+        renderDeliveryAdmin();
       });
+      $("admin-content").querySelectorAll("[data-area]").forEach((input) => input.addEventListener("input", () => {
+        const area = state.deliveryAreas[Number(input.dataset.area)];
+        area[input.dataset.key] = input.dataset.key === "fee" ? Number(input.value || 0) : input.value;
+      }));
+      $("admin-content").querySelectorAll("[data-remove-area]").forEach((button) => button.addEventListener("click", () => {
+        state.deliveryAreas.splice(Number(button.dataset.removeArea), 1);
+        renderDeliveryAdmin();
+      }));
     }
-    bindTabShortcuts();
-    $("tabs").addEventListener("click", (event) => {
-      if (event.target.dataset.tab) {
-        state.activeTab = event.target.dataset.tab;
-        updateAdminView();
+
+    function areaEditor(area, index) {
+      return `
+        <div class="admin-item">
+          <div class="fields" style="grid-template-columns:1fr 120px 150px auto;">
+            <input data-area="${index}" data-key="neighborhood" value="${escapeAttr(area.neighborhood)}" />
+            <input data-area="${index}" data-key="fee" type="number" step="0.01" value="${Number(area.fee || 0)}" />
+            <input data-area="${index}" data-key="eta" value="${escapeAttr(area.eta || "")}" />
+            <button class="btn danger" data-remove-area="${index}" type="button">Excluir</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPromoAdmin() {
+      $("admin-content").innerHTML = `
+        <div class="card">
+          <h4>Promocao</h4>
+          <div class="field"><label>Titulo</label><input data-setting="promoTitle" value="${escapeAttr(state.settings.promoTitle || "")}" /></div>
+          <div class="field"><label>Texto</label><textarea data-setting="promoText">${escapeHtml(state.settings.promoText || "")}</textarea></div>
+          <div class="field"><label>Preco</label><input data-setting="promoPrice" type="number" step="0.01" value="${Number(state.settings.promoPrice || 0)}" /></div>
+        </div>
+      `;
+      bindSettingInputs();
+    }
+
+    function renderSettingsAdmin() {
+      const fields = [
+        ["name", "Nome"], ["slogan", "Slogan"], ["phoneDisplay", "Telefone exibido"], ["whatsapp", "WhatsApp com DDI"], ["address", "Endereco"], ["hours", "Horario"], ["instagram", "Instagram"]
+      ];
+      $("admin-content").innerHTML = `<div class="card"><h4>Dados da loja</h4>${fields.map(([key, label]) => `
+        <div class="field"><label>${label}</label>${key === "address" ? `<textarea data-setting="${key}">${escapeHtml(state.settings[key] || "")}</textarea>` : `<input data-setting="${key}" value="${escapeAttr(state.settings[key] || "")}" />`}</div>
+      `).join("")}</div>`;
+      bindSettingInputs();
+    }
+
+    function bindSettingInputs() {
+      $("admin-content").querySelectorAll("[data-setting]").forEach((input) => input.addEventListener("input", () => {
+        state.settings[input.dataset.setting] = input.dataset.setting === "promoPrice" ? Number(input.value || 0) : input.value;
+      }));
+    }
+
+    async function saveAdmin() {
+      $("admin-message").textContent = "Salvando...";
+      $("admin-message").className = "message";
+      try {
+        const data = await fetchJson("/api/admin/save", {
+          method: "POST",
+          body: JSON.stringify({ settings: state.settings, products: state.products, deliveryAreas: state.deliveryAreas }),
+        });
+        Object.assign(state, data);
+        $("admin-message").textContent = "Alteracoes salvas.";
+        $("admin-message").className = "message ok";
+        renderPublic();
+        renderAdmin();
+      } catch (error) {
+        $("admin-message").textContent = error.message;
+        $("admin-message").className = "message err";
       }
+    }
+
+    async function seedInitialData() {
+      if (!state.adminLogged || state.seedingData) return;
+      state.seedingData = true;
+      $("admin-message").textContent = "Populando dados iniciais...";
+      $("admin-message").className = "message";
+      try {
+        const data = await fetchJson("/api/admin/seed", { method: "POST", body: "{}" });
+        Object.assign(state, data);
+        $("admin-message").textContent = "Dados iniciais verificados. Itens padrao foram criados apenas se o banco estava vazio.";
+        $("admin-message").className = "message ok";
+        renderPublic();
+        renderAdmin();
+      } catch (error) {
+        $("admin-message").textContent = error.message;
+        $("admin-message").className = "message err";
+      } finally {
+        state.seedingData = false;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    $("search").addEventListener("input", (event) => {
+      state.search = event.target.value;
+      renderProducts();
+    });
+    $("mobile-toggle").addEventListener("click", () => {
+      $("menu").classList.toggle("mobile-open");
+      $("actions").classList.toggle("mobile-open");
+    });
+    $("open-admin").addEventListener("click", openAdmin);
+    $("seed-data").addEventListener("click", async () => {
+      await openAdmin();
+      if (state.adminLogged) await seedInitialData();
+    });
+    $("hero-admin").addEventListener("click", openAdmin);
+    $("close-admin").addEventListener("click", () => $("admin-modal").hidden = true);
+    $("admin-modal").addEventListener("click", (event) => {
+      if (event.target === $("admin-modal")) $("admin-modal").hidden = true;
     });
     $("login-form").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const form = event.currentTarget;
-      setMessage($("login-message"), "Entrando...", "");
+      $("login-message").textContent = "Entrando...";
       try {
-        await fetchJson("/api/admin/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(form).entries())) });
+        await fetchJson("/api/admin/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) });
         state.adminLogged = true;
-        form.reset();
-        setMessage($("login-message"), "", "");
-        updateAdminView();
-        try {
-          await refreshAdmin();
-        } catch (error) {
-          setMessage($("admin-message"), "Login feito, mas nao consegui carregar o painel: " + error.message, "err");
-        }
+        $("login-message").textContent = "";
+        updateAdminShell();
+        await refreshAdmin();
       } catch (error) {
-        setMessage($("login-message"), error.message, "err");
+        $("login-message").textContent = error.message;
+        $("login-message").className = "message err";
       }
     });
     $("logout-admin").addEventListener("click", async () => {
       await fetchJson("/api/admin/logout", { method: "POST", body: "{}" });
       state.adminLogged = false;
-      updateAdminView();
+      updateAdminShell();
     });
-    $("export-admin").addEventListener("click", () => window.open("/api/admin/export", "_blank", "noopener,noreferrer"));
-    $("open-admin").addEventListener("click", openAdmin);
-    $("close-admin").addEventListener("click", () => $("admin-modal").hidden = true);
-    $("admin-modal").addEventListener("click", (event) => {
-      if (event.target === $("admin-modal")) $("admin-modal").hidden = true;
-    });
-    $("barber-select").addEventListener("change", loadAvailability);
-    $("date-input").addEventListener("change", loadAvailability);
+    $("save-admin").addEventListener("click", saveAdmin);
+    $("seed-admin").addEventListener("click", seedInitialData);
+    $("refresh-admin").addEventListener("click", refreshAdmin);
 
-    setDefaultDate();
-    loadPublicData().catch((error) => setMessage($("booking-message"), error.message, "err"));
-    if (location.pathname === "/admin") openAdmin();
+    loadPublicData().catch((error) => {
+      state.loadingPublic = false;
+      renderProducts();
+      $("product-message").textContent = error.message;
+      $("product-message").className = "message err";
+    });
+    setInterval(() => {
+      if (state.adminLogged) refreshAdmin().catch(() => {});
+    }, 5000);
   </script>
 </body>
 </html>

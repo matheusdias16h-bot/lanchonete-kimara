@@ -1,6 +1,6 @@
-# Barbearia da Vinte
+# Lanchonete Kimara
 
-Site com agendamento online, area admin e persistencia em SQLite.
+Site com cardapio online, carrinho, pedidos pelo WhatsApp, area admin e persistencia em SQLite.
 
 ## Como rodar
 
@@ -32,23 +32,11 @@ Voce pode trocar em hospedagem usando variaveis de ambiente:
 
 ## O que faz
 
-- Cliente escolhe servico, barbeiro, data e horario.
-- Horario confirmado fica bloqueado para outros clientes.
-- Admin cadastra barbeiros, e-mail dos barbeiros, servicos, valores e horarios.
-- Admin visualiza e cancela/conclui agendamentos.
-- O sistema tenta enviar e-mail para o barbeiro quando um horario e marcado.
-
-## E-mail
-
-Para envio real de e-mail, configure:
-
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_USER`
-- `SMTP_PASS`
-- `SMTP_FROM`
-
-Se o SMTP nao estiver configurado, o agendamento ainda e salvo e o aviso fica registrado na tabela `email_outbox`.
+- Cliente busca produtos, filtra por categoria e monta carrinho.
+- Taxa de entrega muda conforme o bairro selecionado.
+- Pedido e salvo no SQLite e depois enviado pelo WhatsApp.
+- Admin edita produtos, promocao, bairros de entrega e dados da loja.
+- Admin acompanha pedidos e altera status.
 
 ## Publicar no Render
 
