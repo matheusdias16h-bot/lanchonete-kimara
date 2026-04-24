@@ -248,6 +248,26 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    body[data-page="admin"] header,
+    body[data-page="admin"] main,
+    body[data-page="admin"] .cart,
+    body[data-page="admin"] footer {
+      display: none;
+    }
+    body[data-page="admin"] {
+      background: #050505;
+    }
+    body[data-page="admin"] .modal {
+      position: static;
+      inset: auto;
+      min-height: 100vh;
+      background: transparent;
+      padding: 24px 16px;
+      backdrop-filter: none;
+    }
+    body[data-page="admin"] .dialog {
+      width: min(1240px, calc(100% - 32px));
+    }
     @media (max-width: 900px) {
       .menu, .actions { display: none; }
       .icon-btn { display: grid; }
@@ -284,8 +304,6 @@
         <a href="#depoimentos">Depoimentos</a>
       </nav>
       <div class="actions" id="actions">
-        <button class="btn" id="open-admin" type="button">Admin</button>
-        <button class="btn" id="seed-data" type="button">Popular dados</button>
         <a class="btn primary" id="top-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
       </div>
       <button class="icon-btn" id="mobile-toggle" type="button" aria-label="Abrir menu">☰</button>
@@ -301,7 +319,6 @@
           <p class="lead">Monte o pedido, calcule a entrega por bairro e envie tudo pelo WhatsApp. Produtos, configuracoes e pedidos ficam salvos no servidor com atualizacao rapida no painel admin.</p>
           <div class="hero-actions">
             <a class="btn primary" href="#cardapio">Ver cardapio</a>
-            <button class="btn" id="hero-admin" type="button">Abrir admin</button>
           </div>
         </div>
         <aside class="promo-card">
@@ -433,6 +450,7 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
+    const isAdminPage = window.location.pathname === "/admin";
     const categories = ["Todos", "Coxinhas", "Enrolados", "Encomendas"];
     const tabs = [
       ["dashboard", "Dashboard"],
@@ -669,6 +687,9 @@
 
     async function openAdmin() {
       $("admin-modal").hidden = false;
+      if (isAdminPage) {
+        document.body.setAttribute("data-page", "admin");
+      }
       try {
         const session = await fetchJson("/api/admin/session");
         state.adminLogged = Boolean(session.logged);
@@ -683,6 +704,7 @@
     function updateAdminShell() {
       $("login-shell").hidden = state.adminLogged;
       $("admin-shell").hidden = !state.adminLogged;
+      $("close-admin").textContent = isAdminPage ? "Voltar ao site" : "Fechar";
       if (state.adminLogged) renderAdmin();
     }
 
@@ -918,15 +940,15 @@
       $("menu").classList.toggle("mobile-open");
       $("actions").classList.toggle("mobile-open");
     });
-    $("open-admin").addEventListener("click", openAdmin);
-    $("seed-data").addEventListener("click", async () => {
-      await openAdmin();
-      if (state.adminLogged) await seedInitialData();
+    $("close-admin").addEventListener("click", () => {
+      if (isAdminPage) {
+        window.location.href = "/";
+        return;
+      }
+      $("admin-modal").hidden = true;
     });
-    $("hero-admin").addEventListener("click", openAdmin);
-    $("close-admin").addEventListener("click", () => $("admin-modal").hidden = true);
     $("admin-modal").addEventListener("click", (event) => {
-      if (event.target === $("admin-modal")) $("admin-modal").hidden = true;
+      if (event.target === $("admin-modal") && !isAdminPage) $("admin-modal").hidden = true;
     });
     $("login-form").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -957,6 +979,9 @@
       $("product-message").textContent = error.message;
       $("product-message").className = "message err";
     });
+    if (isAdminPage) {
+      openAdmin().catch(() => {});
+    }
     setInterval(() => {
       if (state.adminLogged) refreshAdmin().catch(() => {});
     }, 5000);
