@@ -473,6 +473,7 @@
       loadingPublic: true,
       submittingOrder: false,
       seedingData: false,
+      adminDirty: false,
     };
 
     function money(value) {
@@ -719,6 +720,7 @@
         </div>
       `;
       $("add-product").addEventListener("click", () => {
+        state.adminDirty = true;
         state.products.push({
           name: $("new-product-name").value,
           description: $("new-product-description").value,
@@ -752,12 +754,15 @@
     function bindProductInputs() {
       $("admin-content").querySelectorAll("[data-product]").forEach((input) => input.addEventListener("input", () => {
         const product = state.products[Number(input.dataset.product)];
+        state.adminDirty = true;
         product[input.dataset.key] = input.dataset.key === "price" ? Number(input.value || 0) : input.value;
       }));
       $("admin-content").querySelectorAll("[data-product-active]").forEach((input) => input.addEventListener("change", () => {
+        state.adminDirty = true;
         state.products[Number(input.dataset.productActive)].active = input.checked ? 1 : 0;
       }));
       $("admin-content").querySelectorAll("[data-remove-product]").forEach((button) => button.addEventListener("click", () => {
+        state.adminDirty = true;
         state.products.splice(Number(button.dataset.removeProduct), 1);
         renderProductAdmin();
       }));
@@ -811,6 +816,7 @@
 
     function bindSettingInputs() {
       $("admin-content").querySelectorAll("[data-setting]").forEach((input) => input.addEventListener("input", () => {
+        state.adminDirty = true;
         state.settings[input.dataset.setting] = input.dataset.setting === "promoPrice" ? Number(input.value || 0) : input.value;
       }));
     }
@@ -824,6 +830,7 @@
           body: JSON.stringify({ settings: state.settings, products: state.products, deliveryAreas: [] }),
         });
         Object.assign(state, data);
+        state.adminDirty = false;
         $("admin-message").textContent = "Alteracoes salvas.";
         $("admin-message").className = "message ok";
         renderPublic();
@@ -842,6 +849,7 @@
       try {
         const data = await fetchJson("/api/admin/seed", { method: "POST", body: "{}" });
         Object.assign(state, data);
+        state.adminDirty = false;
         $("admin-message").textContent = "Dados iniciais verificados. Itens padrao foram criados apenas se o banco estava vazio.";
         $("admin-message").className = "message ok";
         renderPublic();
@@ -913,7 +921,7 @@
       openAdmin().catch(() => {});
     }
     setInterval(() => {
-      if (state.adminLogged) refreshAdmin().catch(() => {});
+      if (state.adminLogged && !state.adminDirty) refreshAdmin().catch(() => {});
     }, 5000);
   </script>
 </body>
