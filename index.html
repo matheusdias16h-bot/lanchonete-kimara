@@ -584,7 +584,7 @@
           <p>${escapeHtml(product.description || "")}</p>
           <div class="card-actions">
             <button class="btn primary" data-add="${product.id}" type="button">Adicionar</button>
-            <a class="btn" href="${whatsappLink(`Ola! Quero pedir ${product.name} na ${state.settings.name}.`)}" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn" href="${whatsappLink(`Ola! Quero pedir ${product.name} na ${state.settings.name}. Valor: ${money(product.price)}.`)}" target="_blank" rel="noopener">WhatsApp</a>
           </div>
         </article>
       `).join("");
