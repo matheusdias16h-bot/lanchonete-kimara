@@ -236,6 +236,15 @@
     .message { margin-top: 12px; min-height: 22px; color: var(--muted); }
     .message.ok { color: var(--green); }
     .message.err { color: var(--red); }
+    .save-fab {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 80;
+      min-width: 200px;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.38);
+    }
+    .save-fab[hidden] { display: none !important; }
     .loading-box {
       display: flex;
       align-items: center;
@@ -442,6 +451,7 @@
           <div id="admin-content"></div>
         </div>
       </div>
+      <button class="btn primary save-fab" id="save-admin-fab" type="button" hidden>Salvar alteracoes</button>
     </div>
   </section>
 
@@ -478,6 +488,20 @@
 
     function money(value) {
       return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function refreshSaveButton() {
+      const floatingButton = $("save-admin-fab");
+      const shouldShow = state.adminLogged;
+      floatingButton.hidden = !shouldShow;
+      if (!shouldShow) return;
+      floatingButton.textContent = state.adminDirty ? "Salvar alteracoes" : "Tudo salvo";
+      floatingButton.disabled = !state.adminDirty;
+    }
+
+    function markAdminDirty() {
+      state.adminDirty = true;
+      refreshSaveButton();
     }
 
     async function fetchJson(url, options = {}) {
@@ -665,6 +689,7 @@
       $("login-shell").hidden = state.adminLogged;
       $("admin-shell").hidden = !state.adminLogged;
       $("close-admin").textContent = isAdminPage ? "Voltar ao site" : "Fechar";
+      refreshSaveButton();
       if (state.adminLogged) renderAdmin();
     }
 
@@ -720,7 +745,7 @@
         </div>
       `;
       $("add-product").addEventListener("click", () => {
-        state.adminDirty = true;
+        markAdminDirty();
         state.products.push({
           name: $("new-product-name").value,
           description: $("new-product-description").value,
@@ -754,15 +779,15 @@
     function bindProductInputs() {
       $("admin-content").querySelectorAll("[data-product]").forEach((input) => input.addEventListener("input", () => {
         const product = state.products[Number(input.dataset.product)];
-        state.adminDirty = true;
+        markAdminDirty();
         product[input.dataset.key] = input.dataset.key === "price" ? Number(input.value || 0) : input.value;
       }));
       $("admin-content").querySelectorAll("[data-product-active]").forEach((input) => input.addEventListener("change", () => {
-        state.adminDirty = true;
+        markAdminDirty();
         state.products[Number(input.dataset.productActive)].active = input.checked ? 1 : 0;
       }));
       $("admin-content").querySelectorAll("[data-remove-product]").forEach((button) => button.addEventListener("click", () => {
-        state.adminDirty = true;
+        markAdminDirty();
         state.products.splice(Number(button.dataset.removeProduct), 1);
         renderProductAdmin();
       }));
@@ -816,7 +841,7 @@
 
     function bindSettingInputs() {
       $("admin-content").querySelectorAll("[data-setting]").forEach((input) => input.addEventListener("input", () => {
-        state.adminDirty = true;
+        markAdminDirty();
         state.settings[input.dataset.setting] = input.dataset.setting === "promoPrice" ? Number(input.value || 0) : input.value;
       }));
     }
@@ -831,6 +856,7 @@
         });
         Object.assign(state, data);
         state.adminDirty = false;
+        refreshSaveButton();
         $("admin-message").textContent = "Alteracoes salvas.";
         $("admin-message").className = "message ok";
         renderPublic();
@@ -850,6 +876,7 @@
         const data = await fetchJson("/api/admin/seed", { method: "POST", body: "{}" });
         Object.assign(state, data);
         state.adminDirty = false;
+        refreshSaveButton();
         $("admin-message").textContent = "Dados iniciais verificados. Itens padrao foram criados apenas se o banco estava vazio.";
         $("admin-message").className = "message ok";
         renderPublic();
@@ -905,9 +932,11 @@
     $("logout-admin").addEventListener("click", async () => {
       await fetchJson("/api/admin/logout", { method: "POST", body: "{}" });
       state.adminLogged = false;
+      refreshSaveButton();
       updateAdminShell();
     });
     $("save-admin").addEventListener("click", saveAdmin);
+    $("save-admin-fab").addEventListener("click", saveAdmin);
     $("seed-admin").addEventListener("click", seedInitialData);
     $("refresh-admin").addEventListener("click", refreshAdmin);
 
