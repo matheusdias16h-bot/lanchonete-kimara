@@ -448,6 +448,10 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const isAdminPage = window.location.pathname === "/admin";
+    if (isAdminPage) {
+      document.body.setAttribute("data-page", "admin");
+      $("admin-modal").hidden = false;
+    }
     const categories = ["Todos", "Coxinhas", "Enrolados", "Encomendas"];
     const tabs = [
       ["dashboard", "Dashboard"],
