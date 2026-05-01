@@ -1,336 +1,650 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Lanchonete Kimara: coxinhas, enrolados, encomendas e pedidos pelo WhatsApp." />
-  <title>Lanchonete Kimara | Cardapio online</title>
+  <meta name="description" content="Talita Moraes Designer de cilios em Belo Horizonte: extensao de cilios para realcar sua beleza e autoestima atraves do olhar." />
+  <title>Talita Moraes Designer de Cilios | Belo Horizonte</title>
   <style>
     :root {
-      --bg: #050505;
-      --panel: rgba(18, 14, 10, 0.92);
-      --panel-2: rgba(255,255,255,0.06);
-      --ink: #fff8ea;
-      --muted: #b8afa1;
-      --yellow: #f7c948;
-      --orange: #f97316;
-      --red: #ff7564;
-      --green: #76d99a;
-      --line: rgba(247, 201, 72, 0.18);
-      --shadow: 0 28px 90px rgba(0,0,0,0.45);
-      --max: 1180px;
+      --bg: #160f12;
+      --bg-soft: #22161b;
+      --paper: #fff8f0;
+      --paper-2: #f7e7d8;
+      --ink: #2d1d21;
+      --muted: #795e64;
+      --rose: #d96d82;
+      --rose-dark: #9e4054;
+      --gold: #d8a960;
+      --cream: #fff1df;
+      --line: rgba(45, 29, 33, 0.12);
+      --white-line: rgba(255, 248, 240, 0.18);
+      --shadow: 0 28px 90px rgba(68, 30, 40, 0.24);
+      --max: 1160px;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: Georgia, "Times New Roman", serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 18% 12%, rgba(249,115,22,0.18), transparent 26%),
-        radial-gradient(circle at 90% 24%, rgba(247,201,72,0.13), transparent 24%),
-        #050505;
+        radial-gradient(circle at 10% 8%, rgba(217, 109, 130, 0.24), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(216, 169, 96, 0.2), transparent 28%),
+        linear-gradient(140deg, #fff8f0 0%, #f8e6dc 46%, #efd2c8 100%);
       overflow-x: hidden;
     }
+
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 58px 58px;
-      mask-image: linear-gradient(#000, transparent 78%);
+      background-image:
+        linear-gradient(rgba(45, 29, 33, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45, 29, 33, 0.03) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(#000, transparent 82%);
+      z-index: -2;
     }
+
     body::after {
-      content: "";
+      content: "TM";
       position: fixed;
-      inset: 0;
+      right: -4vw;
+      bottom: -8vw;
+      font-size: clamp(9rem, 24vw, 24rem);
+      line-height: 1;
+      color: rgba(217, 109, 130, 0.08);
+      font-style: italic;
       pointer-events: none;
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,0.04), rgba(0,0,0,0.78)),
-        url("/static/img/kimara-logo.png") center 120px / min(72vw, 820px) no-repeat;
-      opacity: 0.14;
-      mix-blend-mode: screen;
       z-index: -1;
     }
+
     a { color: inherit; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
-    button { border: 0; cursor: pointer; color: inherit; }
-    input, select, textarea { color: var(--ink); }
+    button { font: inherit; border: 0; cursor: pointer; }
     .container { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 40;
-      background: rgba(0,0,0,0.82);
-      border-bottom: 1px solid var(--line);
+      z-index: 50;
+      background: rgba(255, 248, 240, 0.78);
+      border-bottom: 1px solid rgba(45, 29, 33, 0.08);
       backdrop-filter: blur(18px);
     }
-    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .mark {
-      width: 60px;
-      height: 60px;
-      border: 1px solid rgba(247,201,72,0.28);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: rgba(17, 10, 5, 0.9);
-      box-shadow: 0 12px 34px rgba(249,115,22,0.22);
-      overflow: hidden;
-      flex: 0 0 auto;
-    }
-    .mark img { width: 100%; height: 100%; object-fit: cover; }
-    .brand h1 { font-size: 1.15rem; color: var(--yellow); line-height: 1; }
-    .brand p { margin-top: 4px; color: var(--muted); font-size: 0.82rem; }
-    .menu { display: flex; align-items: center; gap: 24px; color: #ddd2c2; font-size: 0.88rem; }
-    .actions { display: flex; align-items: center; gap: 10px; }
-    .icon-btn, .btn {
-      min-height: 44px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      padding: 0 16px;
-      font-weight: 800;
-      transition: 0.18s ease;
-    }
-    .icon-btn { width: 44px; padding: 0; display: none; place-items: center; }
-    .btn:hover, .icon-btn:hover { border-color: rgba(247,201,72,0.48); transform: translateY(-1px); }
-    .btn.primary { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #160c00; border-color: transparent; }
-    .btn.danger { color: #ffd0c9; border-color: rgba(255,117,100,0.35); }
-    .hero { position: relative; padding: 76px 0 42px; border-bottom: 1px solid var(--line); }
-    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) 0.85fr; align-items: center; gap: 42px; }
-    .eyebrow { color: var(--yellow); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.78rem; font-weight: 900; }
-    h2 { margin-top: 16px; max-width: 720px; font-size: clamp(2.8rem, 8vw, 6.4rem); line-height: 0.92; letter-spacing: 0; }
-    .hero strong, .yellow { color: var(--yellow); }
-    .lead { margin-top: 22px; color: #ded3c3; line-height: 1.75; max-width: 630px; font-size: 1.05rem; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .promo-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background:
-        linear-gradient(145deg, rgba(247,201,72,0.12), rgba(249,115,22,0.08)),
-        var(--panel);
-      padding: 24px;
-      box-shadow: var(--shadow);
-      min-height: 340px;
-      display: grid;
-      align-content: center;
-    }
-    .promo-visual {
-      aspect-ratio: 16 / 10;
-      border-radius: 8px;
-      background:
-        linear-gradient(135deg, rgba(36,16,6,0.72), rgba(8,6,4,0.88)),
-        url("/static/img/kimara-logo.png") center / contain no-repeat;
-      border: 1px solid rgba(247,201,72,0.18);
-      margin-bottom: 22px;
-    }
-    .promo-card h3 { font-size: 1.8rem; margin-top: 6px; }
-    .promo-card p { color: var(--muted); line-height: 1.6; margin-top: 10px; }
-    .promo-price { color: var(--yellow); font-size: 2rem; font-weight: 1000; margin-top: 14px; }
-    section { padding: 62px 0; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
-    h3 { font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1; }
-    .filters { display: grid; gap: 12px; width: min(430px, 100%); }
-    .search { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0 14px; min-height: 48px; }
-    .search input { flex: 1; background: transparent; border: 0; outline: 0; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { border: 1px solid var(--line); background: rgba(255,255,255,0.05); border-radius: 999px; min-height: 38px; padding: 0 14px; color: #ded3c3; font-weight: 800; }
-    .chip.active { background: var(--yellow); color: #160c00; border-color: transparent; }
-    .grid { display: grid; gap: 18px; }
-    .product-grid { grid-template-columns: repeat(3, 1fr); }
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: linear-gradient(145deg, rgba(36,16,4,0.72), rgba(12,12,12,0.9));
-      padding: 20px;
-      min-width: 0;
-    }
-    .product-top { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
-    .badge { border-radius: 999px; background: rgba(247,201,72,0.12); color: var(--yellow); padding: 7px 10px; font-size: 0.76rem; font-weight: 900; text-transform: uppercase; }
-    .price { color: var(--yellow); font-size: 1.12rem; font-weight: 1000; white-space: nowrap; }
-    .card h4 { font-size: 1.4rem; line-height: 1.1; }
-    .card p { margin-top: 10px; color: var(--muted); line-height: 1.55; }
-    .card-actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 18px; }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .area-button {
+
+    .nav {
+      min-height: 76px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
-      gap: 16px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.05);
-      padding: 16px;
-      margin-top: 10px;
-      text-align: left;
+      gap: 22px;
     }
-    .area-button.active { background: rgba(247,201,72,0.12); border-color: rgba(247,201,72,0.42); }
-    .map-frame { margin-top: 18px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: #111; }
-    iframe { display: block; width: 100%; height: 310px; border: 0; }
-    .testimonial-grid { grid-template-columns: repeat(3, 1fr); }
-    .cart {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 35;
-      width: min(430px, calc(100vw - 32px));
-      max-height: calc(100vh - 110px);
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(5,5,5,0.94);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      backdrop-filter: blur(16px);
-    }
-    .cart-head, .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .cart-item { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 12px; margin-top: 10px; }
-    .qty { display: flex; align-items: center; gap: 8px; }
-    .qty button { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.09); }
-    .field { display: grid; gap: 7px; margin-top: 12px; }
-    .field label { color: var(--muted); font-size: 0.85rem; }
-    .field input, .field select, .field textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #070707;
-      padding: 12px;
-      outline: 0;
-    }
-    .totals { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 14px; margin-top: 12px; display: grid; gap: 8px; }
-    footer { border-top: 1px solid var(--line); padding: 46px 0 150px; color: var(--muted); background: rgba(0,0,0,0.55); }
-    .footer-grid { display: grid; grid-template-columns: 1.1fr 0.8fr 1.1fr; gap: 24px; }
-    .modal[hidden], [hidden] { display: none !important; }
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      background: rgba(0,0,0,0.86);
-      overflow: auto;
-      padding: 24px 16px;
-      backdrop-filter: blur(12px);
-    }
-    .dialog {
-      width: min(1180px, 100%);
-      margin: 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #080808;
-      box-shadow: var(--shadow);
-    }
-    .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px; border-bottom: 1px solid var(--line); }
-    .admin-shell { display: grid; grid-template-columns: 230px 1fr; }
-    .tabs { border-right: 1px solid var(--line); padding: 14px; }
-    .tab { width: 100%; text-align: left; border-radius: 8px; background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 13px; font-weight: 900; }
-    .tab.active { background: var(--yellow); color: #160c00; }
-    .admin-body { padding: 18px; min-width: 0; }
-    .metric-grid { grid-template-columns: repeat(4, 1fr); }
-    .editor-grid { grid-template-columns: 360px 1fr; }
-    .list { display: grid; gap: 12px; margin-top: 14px; }
-    .admin-item { border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.05); padding: 14px; }
-    .admin-item .fields { display: grid; grid-template-columns: 1fr 120px 130px 120px auto; gap: 8px; align-items: center; margin-top: 10px; }
-    .order-grid { display: grid; grid-template-columns: 80px 1fr 1.4fr 160px 110px; gap: 12px; align-items: center; }
-    .message { margin-top: 12px; min-height: 22px; color: var(--muted); }
-    .message.ok { color: var(--green); }
-    .message.err { color: var(--red); }
-    .save-fab {
-      position: fixed;
-      right: 22px;
-      bottom: 22px;
-      z-index: 80;
-      min-width: 200px;
-      box-shadow: 0 18px 44px rgba(0,0,0,0.38);
-    }
-    .save-fab[hidden] { display: none !important; }
-    .loading-box {
+
+    .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.05);
-      padding: 18px;
-      color: #ded3c3;
+      gap: 13px;
+      min-width: 220px;
     }
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(247,201,72,0.22);
-      border-top-color: var(--yellow);
+
+    .brand-mark {
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      flex: 0 0 auto;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    body[data-page="admin"] header,
-    body[data-page="admin"] main,
-    body[data-page="admin"] .cart,
-    body[data-page="admin"] footer {
-      display: none;
-    }
-    body[data-page="admin"] {
-      background: #050505;
-    }
-    body[data-page="admin"] .modal {
-      position: static;
-      inset: auto;
-      min-height: 100vh;
-      background: transparent;
-      padding: 24px 16px;
-      backdrop-filter: none;
-    }
-    body[data-page="admin"] .dialog {
-      width: min(1240px, calc(100% - 32px));
-    }
-    body[data-page="admin"]::after {
-      opacity: 0.06;
+      display: grid;
+      place-items: center;
+      color: var(--cream);
       background:
-        radial-gradient(circle at center, rgba(0,0,0,0.08), rgba(0,0,0,0.88)),
-        url("/static/img/kimara-logo.png") center 80px / min(56vw, 520px) no-repeat;
+        radial-gradient(circle at 35% 24%, rgba(255,255,255,0.2), transparent 28%),
+        linear-gradient(145deg, var(--rose), var(--rose-dark));
+      box-shadow: 0 18px 36px rgba(158, 64, 84, 0.28);
+      font-weight: 700;
+      letter-spacing: -0.08em;
+      font-style: italic;
     }
-    @media (max-width: 900px) {
-      .menu, .actions { display: none; }
-      .icon-btn { display: grid; }
-      .menu.mobile-open, .actions.mobile-open { display: flex; position: absolute; left: 16px; right: 16px; top: 82px; flex-direction: column; align-items: stretch; background: #090909; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
-      .actions.mobile-open { top: 242px; }
-      .hero-grid, .two-col, .admin-shell, .editor-grid, .footer-grid { grid-template-columns: 1fr; }
-      .product-grid, .testimonial-grid, .metric-grid { grid-template-columns: repeat(2, 1fr); }
-      .tabs { border-right: 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .tab { margin: 0; }
-      .admin-item .fields, .order-grid { grid-template-columns: 1fr; }
+
+    .brand strong {
+      display: block;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    @media (max-width: 620px) {
-      .product-grid, .testimonial-grid, .metric-grid { grid-template-columns: 1fr; }
-      .section-head { align-items: start; flex-direction: column; }
-      .cart { position: static; width: min(100% - 32px, 430px); margin: 20px auto; max-height: none; }
-      footer { padding-bottom: 46px; }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 2px;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.92rem;
+    }
+
+    .nav-links a {
+      padding: 10px 12px;
+      border-radius: 999px;
+      transition: 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+      background: rgba(217, 109, 130, 0.12);
+    }
+
+    .cta, .ghost, .mini-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 999px;
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 700;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .cta {
+      min-height: 50px;
+      padding: 0 22px;
+      color: var(--cream);
+      background: linear-gradient(135deg, var(--rose-dark), var(--rose));
+      box-shadow: 0 20px 38px rgba(158, 64, 84, 0.26);
+    }
+
+    .ghost {
+      min-height: 50px;
+      padding: 0 22px;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: rgba(255, 248, 240, 0.58);
+    }
+
+    .cta:hover, .ghost:hover, .mini-cta:hover { transform: translateY(-2px); }
+    .cta:hover { box-shadow: 0 24px 44px rgba(158, 64, 84, 0.32); }
+
+    .hero {
+      position: relative;
+      padding: 78px 0 44px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border: 1px solid rgba(158, 64, 84, 0.16);
+      border-radius: 999px;
+      color: var(--rose-dark);
+      background: rgba(255, 248, 240, 0.56);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .spark {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 7px rgba(216, 169, 96, 0.14);
+    }
+
+    h1 {
+      font-size: clamp(3.1rem, 8vw, 7.8rem);
+      line-height: 0.9;
+      letter-spacing: -0.07em;
+      color: var(--ink);
+      max-width: 780px;
+    }
+
+    h1 em {
+      display: block;
+      color: var(--rose-dark);
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: -0.08em;
+    }
+
+    .lead {
+      margin-top: 24px;
+      max-width: 640px;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: clamp(1.04rem, 2vw, 1.2rem);
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 610px;
+      border-radius: 42px;
+      padding: 24px;
+      color: var(--cream);
+      background:
+        linear-gradient(160deg, rgba(45, 29, 33, 0.08), transparent 42%),
+        linear-gradient(145deg, #56313b 0%, #9e4054 48%, #d8a960 118%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid var(--white-line);
+      border-radius: 32px;
+      pointer-events: none;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -130px;
+      top: -70px;
+      border-radius: 50%;
+      background: rgba(255, 248, 240, 0.16);
+      filter: blur(1px);
+    }
+
+    .portrait {
+      position: absolute;
+      inset: 70px 34px 130px;
+      border-radius: 220px 220px 28px 28px;
+      background: rgba(255,248,240,0.12);
+      border: 1px solid rgba(255, 248, 240, 0.24);
+      overflow: hidden;
+    }
+
+    .portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: saturate(1.06) contrast(1.02);
+    }
+
+    .floating-note {
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      bottom: 26px;
+      z-index: 2;
+      padding: 22px;
+      border-radius: 26px;
+      color: var(--ink);
+      background: rgba(255, 248, 240, 0.88);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 50px rgba(45, 29, 33, 0.18);
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .floating-note small {
+      display: block;
+      color: var(--rose-dark);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    .floating-note strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .section { padding: 74px 0; }
+    .section.dark {
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 16% 12%, rgba(216, 169, 96, 0.16), transparent 28%),
+        linear-gradient(145deg, #1d1115, #321d24 72%);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 28px;
+      margin-bottom: 34px;
+    }
+
+    .section-kicker {
+      color: var(--rose-dark);
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      margin-bottom: 10px;
+    }
+
+    .dark .section-kicker { color: var(--gold); }
+    h2 {
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      max-width: 710px;
+    }
+
+    .section-copy {
+      max-width: 430px;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+
+    .dark .section-copy { color: rgba(255, 241, 223, 0.72); }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .service-card {
+      min-height: 265px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: rgba(255, 248, 240, 0.66);
+      box-shadow: 0 18px 50px rgba(68, 30, 40, 0.08);
+      transition: 0.24s ease;
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 248, 240, 0.9);
+      box-shadow: 0 26px 60px rgba(68, 30, 40, 0.13);
+    }
+
+    .service-number {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      margin-bottom: 34px;
+      border-radius: 50%;
+      color: var(--cream);
+      background: var(--rose-dark);
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 800;
+    }
+
+    .service-card h3 {
+      font-size: 1.55rem;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .service-card p {
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    .experience-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    .quote-card, .ritual-card {
+      border: 1px solid var(--white-line);
+      border-radius: 34px;
+      background: rgba(255, 248, 240, 0.08);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+    }
+
+    .quote-card {
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 430px;
+    }
+
+    .quote-card p {
+      font-size: clamp(2rem, 4vw, 4.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+    }
+
+    .quote-card span {
+      margin-top: 28px;
+      color: rgba(255, 241, 223, 0.72);
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    .ritual-card {
+      padding: 18px;
+    }
+
+    .ritual-list {
+      display: grid;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .ritual-list li {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 16px;
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255, 248, 240, 0.08);
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .ritual-list b {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 18px;
+      color: var(--bg);
+      background: var(--gold);
+    }
+
+    .ritual-list strong { display: block; margin-bottom: 6px; color: var(--cream); }
+    .ritual-list span { color: rgba(255, 241, 223, 0.68); line-height: 1.55; }
+
+    .portfolio-strip {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr 1fr;
+      gap: 16px;
+    }
+
+    .portfolio-item {
+      min-height: 315px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      background: linear-gradient(145deg, rgba(158,64,84,0.18), rgba(216,169,96,0.2));
+      border: 1px solid var(--line);
+    }
+
+    .portfolio-item:nth-child(2) { margin-top: 46px; }
+    .portfolio-item:nth-child(3) { margin-top: 92px; }
+
+    .portfolio-item img {
+      width: 100%;
+      height: 100%;
+      min-height: inherit;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    .portfolio-item:hover img {
+      transform: scale(1.04);
+    }
+
+    .portfolio-item::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      padding: 16px 18px;
+      border-radius: 20px;
+      color: var(--ink);
+      background: rgba(255, 248, 240, 0.88);
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 800;
+      backdrop-filter: blur(14px);
+    }
+
+    .contact-card {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 26px;
+      align-items: center;
+      padding: clamp(28px, 6vw, 58px);
+      border-radius: 42px;
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 80% 22%, rgba(216,169,96,0.24), transparent 24%),
+        linear-gradient(145deg, var(--rose-dark), #3a2028);
+      box-shadow: var(--shadow);
+    }
+
+    .contact-card h2 { max-width: 760px; }
+    .contact-card p {
+      margin-top: 16px;
+      max-width: 640px;
+      color: rgba(255, 241, 223, 0.76);
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+
+    .contact-actions {
+      display: grid;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .mini-cta {
+      min-height: 54px;
+      padding: 0 22px;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: "Segoe UI", sans-serif;
+      font-weight: 800;
+    }
+
+    .mini-cta.secondary {
+      color: var(--cream);
+      border: 1px solid var(--white-line);
+      background: rgba(255, 248, 240, 0.08);
+    }
+
+    footer {
+      padding: 34px 0 46px;
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.92rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--line);
+      padding-top: 22px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 0.72s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.16s; }
+    .delay-3 { animation-delay: 0.24s; }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 920px) {
+      .nav { align-items: flex-start; flex-direction: column; padding: 14px 0; }
+      .nav-links { width: 100%; overflow-x: auto; padding-bottom: 4px; }
+      .hero { padding-top: 44px; }
+      .hero-grid, .experience-grid, .contact-card { grid-template-columns: 1fr; }
+      .hero-card { min-height: 560px; }
+      .services { grid-template-columns: 1fr; }
+      .portfolio-strip { grid-template-columns: 1fr; }
+      .portfolio-item, .portfolio-item:nth-child(2), .portfolio-item:nth-child(3) { margin-top: 0; min-height: 260px; }
+      .section-head { display: block; }
+      .section-copy { margin-top: 14px; }
+      .contact-actions { min-width: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .container { width: min(var(--max), calc(100% - 22px)); }
+      .brand { min-width: auto; }
+      .nav-links a { white-space: nowrap; }
+      .hero-card { min-height: 500px; border-radius: 30px; }
+      .portrait { inset: 62px 20px 126px; }
+      .floating-note { left: 18px; right: 18px; bottom: 18px; padding: 18px; }
+      .hero-actions, .cta, .ghost { width: 100%; }
+      .section { padding: 54px 0; }
+      .service-card, .quote-card { padding: 24px; }
+      .ritual-list li { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="container nav">
-      <a class="brand" href="#inicio">
-        <div class="mark"><img src="/static/img/kimara-logo.png" alt="Logo da Lanchonete Kimara" /></div>
-        <div>
-          <h1 id="store-name">Lanchonete Kimara</h1>
-          <p id="store-slogan">Coxinhas e enrolados top</p>
-        </div>
+      <a class="brand" href="#inicio" aria-label="Inicio Talita Moraes Designer">
+        <span class="brand-mark">TM</span>
+        <span>
+          <strong>Talita Moraes</strong>
+          <span>Designer de cilios</span>
+        </span>
       </a>
-      <nav class="menu" id="menu">
-        <a href="#cardapio">Cardapio</a>
-        <a href="#encomendas">Encomendas</a>
-        <a href="#depoimentos">Depoimentos</a>
+      <nav class="nav-links" aria-label="Navegacao principal">
+        <a href="#servicos">Servicos</a>
+        <a href="#experiencia">Experiencia</a>
+        <a href="#portfolio">Resultados</a>
+        <a href="#contato">Contato</a>
       </nav>
-      <div class="actions" id="actions">
-        <a class="btn primary" id="top-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
-      </div>
-      <button class="icon-btn" id="mobile-toggle" type="button" aria-label="Abrir menu">☰</button>
+      <a class="cta" href="https://wa.me/message/J4J6YULFFJRLH1" target="_blank" rel="noopener">Agendar horario</a>
     </div>
   </header>
 
@@ -338,620 +652,131 @@
     <section class="hero">
       <div class="container hero-grid">
         <div>
-          <p class="eyebrow">Salvamento real + pedidos no painel</p>
-          <h2>Agora a Kimara esta pronta para <strong>pedidos online</strong></h2>
-          <p class="lead">Monte o pedido e envie tudo pelo WhatsApp. Produtos, configuracoes e pedidos ficam salvos no servidor com atualizacao rapida no painel admin.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#cardapio">Ver cardapio</a>
+          <div class="eyebrow reveal"><span class="spark"></span> Atendimento com carinho e hora marcada</div>
+          <h1 class="reveal delay-1">Cilios que realcam <em>sua autoestima.</em></h1>
+          <p class="lead reveal delay-2">Talita Moraes e designer de cilios em Belo Horizonte. Um atendimento pensado para valorizar seu olhar com beleza, leveza e acabamento natural.</p>
+          <div class="hero-actions reveal delay-3">
+            <a class="cta" href="https://wa.me/message/J4J6YULFFJRLH1" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+            <a class="ghost" href="https://www.instagram.com/_talitamoraesdesigner/" target="_blank" rel="noopener">Ver Instagram</a>
           </div>
         </div>
-        <aside class="promo-card">
-          <div class="promo-visual" aria-hidden="true"></div>
-          <p class="eyebrow">Promocao do dia</p>
-          <h3 id="promo-title">Combo Kimara</h3>
-          <p id="promo-text">2 coxinhas + 2 enrolados + refrigerante por preco especial.</p>
-          <div class="promo-price" id="promo-price">R$ 24,90</div>
+
+        <aside class="hero-card reveal delay-2" aria-label="Destaque do espaco de beleza">
+          <div class="portrait">
+            <img src="static/img/talita/post-1.jpg" alt="Trabalho de extensao de cilios da Talita Moraes" />
+          </div>
+          <div class="floating-note">
+            <small>Designer de cilios</small>
+            <strong>Beleza e autoestima atraves do olhar.</strong>
+          </div>
         </aside>
       </div>
     </section>
 
-    <section id="cardapio">
+    <section class="section" id="servicos">
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Cardapio com precos</p>
-            <h3>Produtos ao vivo</h3>
+            <p class="section-kicker">Servicos</p>
+            <h2>Atendimento pensado para valorizar o seu rosto.</h2>
           </div>
-          <div class="filters">
-            <label class="search">⌕ <input id="search" type="search" placeholder="Buscar produto" /></label>
-            <div class="chips" id="category-chips"></div>
-          </div>
+          <p class="section-copy">Uma landing page precisa vender clareza. Por isso, os servicos abaixo foram escritos de forma elegante e flexivel para voce ajustar conforme a agenda real da Talita.</p>
         </div>
-        <div class="loading-box" id="product-loading"><span class="spinner" aria-hidden="true"></span><span>Carregando produtos do banco...</span></div>
-        <div class="grid product-grid" id="product-list" hidden></div>
-        <p class="message" id="product-message"></p>
+
+        <div class="services">
+          <article class="service-card">
+            <span class="service-number">01</span>
+            <h3>Extensao de cilios</h3>
+            <p>Aplicacao pensada para destacar o olhar com acabamento delicado, respeitando seu estilo e sua rotina.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-number">02</span>
+            <h3>Volume e naturalidade</h3>
+            <p>Um cuidado para deixar a expressao mais marcante sem perder leveza, conforto e beleza no dia a dia.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-number">03</span>
+            <h3>Manutencao</h3>
+            <p>Acompanhamento e orientacoes para preservar o resultado por mais tempo, com praticidade e seguranca.</p>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section id="encomendas">
-      <div class="container two-col">
-        <div class="card">
-          <p class="eyebrow">Encomendas</p>
-          <h3>Pedidos para festas e eventos</h3>
-          <p>Receba pedidos grandes com atendimento rapido. Salgados por cento, combos e encomendas especiais entram no mesmo fluxo do painel.</p>
-        </div>
-        <div class="grid two-col">
-          <div class="card"><h4>Tempo real</h4><p>Pedidos aparecem no painel assim que sao salvos.</p></div>
-          <div class="card"><h4>Banco local</h4><p>Os dados ficam salvos no proprio servidor, sem depender de Firebase.</p></div>
-        </div>
+    <section class="section dark" id="experiencia">
+      <div class="container experience-grid">
+        <article class="quote-card">
+          <p>Autoestima tambem mora nos pequenos detalhes.</p>
+          <span>O site transforma o atendimento em uma experiencia desejada antes mesmo do primeiro contato: acolhedora, feminina, profissional e facil de agendar.</span>
+        </article>
+        <article class="ritual-card">
+          <ul class="ritual-list">
+            <li>
+              <b>1</b>
+              <span><strong>Conversa rapida</strong>Entendimento do que voce quer realcar, corrigir ou manter natural.</span>
+            </li>
+            <li>
+              <b>2</b>
+              <span><strong>Atendimento personalizado</strong>Cuidado com medidas, proporcao e acabamento para combinar com voce.</span>
+            </li>
+            <li>
+              <b>3</b>
+              <span><strong>Resultado com leveza</strong>Finalizacao pensada para voce sair pronta, confiante e feliz com o espelho.</span>
+            </li>
+            <li>
+              <b>4</b>
+              <span><strong>Agendamento simples</strong>Um clique no WhatsApp para tirar duvidas e escolher o melhor horario.</span>
+            </li>
+          </ul>
+        </article>
       </div>
     </section>
 
-    <section id="depoimentos">
+    <section class="section" id="portfolio">
       <div class="container">
-        <p class="eyebrow">Depoimentos</p>
-        <h3>Quem compra, recomenda</h3>
-        <div class="grid testimonial-grid" id="testimonial-list" style="margin-top:28px;"></div>
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Resultados</p>
+            <h2>Um visual delicado, moderno e pronto para receber fotos reais.</h2>
+          </div>
+          <p class="section-copy">Deixei blocos visuais no estilo editorial para substituir por fotos de antes/depois, bastidores ou detalhes do espaco quando voce quiser.</p>
+        </div>
+        <div class="portfolio-strip" aria-label="Galeria visual demonstrativa">
+          <div class="portfolio-item" data-label="Extensao de cilios">
+            <img src="static/img/talita/post-2.jpg" alt="Resultado de extensao de cilios" />
+          </div>
+          <div class="portfolio-item" data-label="Olhar com acabamento natural">
+            <img src="static/img/talita/post-3.jpg" alt="Cilios com acabamento natural" />
+          </div>
+          <div class="portfolio-item" data-label="Beleza e autoestima">
+            <img src="static/img/talita/post-4.jpg" alt="Post do Instagram da Talita Moraes Designer" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contato">
+      <div class="container">
+        <div class="contact-card">
+          <div>
+            <p class="section-kicker">Contato</p>
+            <h2>Quer agendar seu horario com a Talita?</h2>
+            <p>Chame no WhatsApp para consultar disponibilidade, valores e horarios. Se preferir acompanhar novidades, resultados e bastidores, o Instagram tambem esta a um clique.</p>
+          </div>
+          <div class="contact-actions">
+            <a class="mini-cta" href="https://wa.me/message/J4J6YULFFJRLH1" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="mini-cta secondary" href="https://www.instagram.com/_talitamoraesdesigner/" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <aside class="cart" aria-label="Carrinho">
-    <div class="cart-head">
-      <div>
-        <p class="eyebrow">Carrinho</p>
-        <h4>Seu pedido</h4>
-      </div>
-      <strong id="cart-count">0</strong>
-    </div>
-    <div id="cart-body"></div>
-  </aside>
-
   <footer>
-    <div class="container footer-grid">
-      <div><h4 class="yellow" id="footer-name">Lanchonete Kimara</h4><p style="margin-top:10px;">Coxinhas, enrolados e encomendas com atendimento rapido e sabor de verdade.</p></div>
-      <div><h4 class="yellow">Horario</h4><p id="footer-hours" style="margin-top:10px;"></p></div>
-      <div><h4 class="yellow">Contato</h4><p id="footer-phone" style="margin-top:10px;"></p><p id="footer-address" style="margin-top:8px;"></p></div>
+    <div class="container footer-row">
+      <span>Talita Moraes Designer de Cilios - Belo Horizonte</span>
+      <span>Site criado para conversao via Instagram e WhatsApp.</span>
     </div>
   </footer>
-
-  <section class="modal" id="admin-modal" hidden role="dialog" aria-modal="true">
-    <div class="dialog">
-      <div class="dialog-head">
-        <div>
-          <p class="eyebrow">Area admin</p>
-          <h3 style="font-size:2rem;">Painel da Kimara</h3>
-          <p class="message">Login inicial: admin / 1234</p>
-        </div>
-        <button class="btn" id="close-admin" type="button">Fechar</button>
-      </div>
-
-      <div id="login-shell" class="admin-body">
-        <form id="login-form" class="card" style="max-width:420px;">
-          <div class="field"><label>Usuario</label><input name="user" value="admin" required /></div>
-          <div class="field"><label>Senha</label><input name="pass" type="password" value="1234" required /></div>
-          <button class="btn primary" type="submit" style="margin-top:14px;width:100%;">Entrar</button>
-          <p class="message" id="login-message"></p>
-        </form>
-      </div>
-
-      <div id="admin-shell" class="admin-shell" hidden>
-        <aside class="tabs" id="tabs"></aside>
-        <div class="admin-body">
-          <div class="row" style="margin-bottom:16px; flex-wrap:wrap;">
-            <div class="row" style="justify-content:flex-start; flex-wrap:wrap;">
-              <button class="btn primary" id="save-admin" type="button">Salvar alteracoes</button>
-              <button class="btn" id="seed-admin" type="button">Popular dados iniciais</button>
-              <button class="btn" id="refresh-admin" type="button">Atualizar</button>
-              <a class="btn" href="/api/admin/export" target="_blank" rel="noopener">Exportar</a>
-            </div>
-            <button class="btn" id="logout-admin" type="button">Sair</button>
-          </div>
-          <p class="message" id="admin-message"></p>
-          <div id="admin-content"></div>
-        </div>
-      </div>
-      <button class="btn primary save-fab" id="save-admin-fab" type="button" hidden>Salvar alteracoes</button>
-    </div>
-  </section>
-
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const isAdminPage = window.location.pathname === "/admin";
-    if (isAdminPage) {
-      document.body.setAttribute("data-page", "admin");
-      $("admin-modal").hidden = false;
-    }
-    const categories = ["Todos", "Coxinhas", "Enrolados", "Encomendas"];
-    const tabs = [
-      ["dashboard", "Dashboard"],
-      ["products", "Produtos"],
-      ["orders", "Pedidos"],
-      ["promo", "Promocao"],
-      ["settings", "Configuracoes"],
-    ];
-    const state = {
-      settings: {},
-      products: [],
-      testimonials: [],
-      orders: [],
-      cart: [],
-      selectedCategory: "Todos",
-      search: "",
-      adminLogged: false,
-      adminTab: "dashboard",
-      loadingPublic: true,
-      submittingOrder: false,
-      seedingData: false,
-      adminDirty: false,
-    };
-
-    function money(value) {
-      return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
-
-    function refreshSaveButton() {
-      const floatingButton = $("save-admin-fab");
-      const shouldShow = state.adminLogged;
-      floatingButton.hidden = !shouldShow;
-      if (!shouldShow) return;
-      floatingButton.textContent = state.adminDirty ? "Salvar alteracoes" : "Tudo salvo";
-      floatingButton.disabled = !state.adminDirty;
-    }
-
-    function markAdminDirty() {
-      state.adminDirty = true;
-      refreshSaveButton();
-    }
-
-    async function fetchJson(url, options = {}) {
-      const response = await fetch(url, {
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        ...options,
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || "Falha na requisicao.");
-      return payload;
-    }
-
-    function whatsappLink(text) {
-      const number = String(state.settings.whatsapp || "").replace(/\D/g, "");
-      return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
-    }
-
-    async function loadPublicData() {
-      state.loadingPublic = true;
-      renderProducts();
-      const data = await fetchJson("/api/public-data");
-      Object.assign(state, data);
-      state.loadingPublic = false;
-      renderPublic();
-    }
-
-    function renderPublic() {
-      $("store-name").textContent = state.settings.name || "Lanchonete Kimara";
-      $("store-slogan").textContent = state.settings.slogan || "";
-      $("promo-title").textContent = state.settings.promoTitle || "";
-      $("promo-text").textContent = state.settings.promoText || "";
-      $("promo-price").textContent = money(state.settings.promoPrice);
-      $("footer-name").textContent = state.settings.name || "";
-      $("footer-hours").textContent = state.settings.hours || "";
-      $("footer-phone").textContent = state.settings.phoneDisplay || "";
-      $("footer-address").textContent = state.settings.address || "";
-      $("top-whatsapp").href = whatsappLink(`Ola! Quero fazer um pedido na ${state.settings.name}.`);
-      renderCategories();
-      renderProducts();
-      renderTestimonials();
-      renderCart();
-    }
-
-    function renderCategories() {
-      $("category-chips").innerHTML = categories.map((category) => `
-        <button class="chip ${state.selectedCategory === category ? "active" : ""}" data-category="${category}" type="button">${category}</button>
-      `).join("");
-      $("category-chips").querySelectorAll("button").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.selectedCategory = button.dataset.category;
-          renderPublic();
-        });
-      });
-    }
-
-    function renderProducts() {
-      $("product-loading").hidden = !state.loadingPublic;
-      $("product-list").hidden = state.loadingPublic;
-      if (state.loadingPublic) {
-        $("product-message").textContent = "";
-        $("product-list").innerHTML = "";
-        return;
-      }
-      const search = state.search.trim().toLowerCase();
-      const products = state.products.filter((product) => {
-        const active = Number(product.active) === 1 || product.active === true;
-        const byCategory = state.selectedCategory === "Todos" || product.category === state.selectedCategory;
-        const bySearch = !search || String(product.name || "").toLowerCase().includes(search);
-        return active && byCategory && bySearch;
-      });
-      $("product-message").textContent = products.length ? "" : "Nenhum produto encontrado.";
-      $("product-list").innerHTML = products.map((product) => `
-        <article class="card">
-          <div class="product-top">
-            <span class="badge">${product.badge || "Kimara"}</span>
-            <span class="price">${money(product.price)}</span>
-          </div>
-          <h4>${escapeHtml(product.name)}</h4>
-          <p>${escapeHtml(product.description || "")}</p>
-          <div class="card-actions">
-            <button class="btn primary" data-add="${product.id}" type="button">Adicionar</button>
-            <a class="btn" href="${whatsappLink(`Ola! Quero pedir ${product.name} na ${state.settings.name}. Valor: ${money(product.price)}.`)}" target="_blank" rel="noopener">WhatsApp</a>
-          </div>
-        </article>
-      `).join("");
-      $("product-list").querySelectorAll("[data-add]").forEach((button) => {
-        button.addEventListener("click", () => addToCart(Number(button.dataset.add)));
-      });
-    }
-
-    function renderTestimonials() {
-      $("testimonial-list").innerHTML = state.testimonials.map((item) => `
-        <article class="card"><div class="yellow">★★★★★</div><p>"${escapeHtml(item.text)}"</p><h4 class="yellow" style="margin-top:18px;">${escapeHtml(item.name)}</h4></article>
-      `).join("");
-    }
-
-    function addToCart(id) {
-      const product = state.products.find((item) => Number(item.id) === Number(id));
-      if (!product) return;
-      const existing = state.cart.find((item) => Number(item.id) === Number(id));
-      if (existing) existing.qty += 1;
-      else state.cart.push({ id: product.id, name: product.name, price: Number(product.price), qty: 1 });
-      renderCart();
-    }
-
-    function changeQty(id, delta) {
-      state.cart = state.cart.map((item) => item.id === id ? { ...item, qty: Math.max(0, item.qty + delta) } : item).filter((item) => item.qty > 0);
-      renderCart();
-    }
-
-    function renderCart() {
-      $("cart-count").textContent = state.cart.reduce((sum, item) => sum + item.qty, 0);
-      if (!state.cart.length) {
-        $("cart-body").innerHTML = `<p class="message">Adicione produtos para montar seu pedido.</p>`;
-        return;
-      }
-      const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-      $("cart-body").innerHTML = `
-        <div class="field"><input id="customer-name" placeholder="Seu nome" /></div>
-        ${state.cart.map((item) => `
-          <div class="cart-item">
-            <div class="row">
-              <div><strong>${escapeHtml(item.name)}</strong><p class="message">${money(item.price)} cada</p></div>
-              <div class="qty"><button data-qty="${item.id}" data-delta="-1" type="button">-</button><strong>${item.qty}</strong><button data-qty="${item.id}" data-delta="1" type="button">+</button></div>
-            </div>
-          </div>
-        `).join("")}
-        <div class="totals">
-          <div class="row"><span>Subtotal</span><strong>${money(subtotal)}</strong></div>
-          <div class="row yellow"><span>Total</span><strong>${money(subtotal)}</strong></div>
-        </div>
-        <button class="btn primary" id="create-order" type="button" style="margin-top:12px;width:100%;" ${state.submittingOrder ? "disabled" : ""}>${state.submittingOrder ? "Salvando pedido..." : "Salvar pedido e enviar no WhatsApp"}</button>
-      `;
-      $("cart-body").querySelectorAll("[data-qty]").forEach((button) => button.addEventListener("click", () => changeQty(Number(button.dataset.qty), Number(button.dataset.delta))));
-      $("create-order").addEventListener("click", createOrder);
-    }
-
-    async function createOrder() {
-      if (!state.cart.length || state.submittingOrder) return;
-      state.submittingOrder = true;
-      renderCart();
-      const customer = $("customer-name").value.trim() || "Cliente sem nome";
-      const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const total = subtotal;
-      try {
-        await fetchJson("/api/orders", {
-          method: "POST",
-          body: JSON.stringify({
-            customer,
-            items: state.cart,
-          }),
-        });
-        const lines = state.cart.map((item) => `- ${item.name} x${item.qty} = ${money(item.price * item.qty)}`).join("\n");
-        const text = `Ola! Acabei de fazer um pedido na ${state.settings.name}.\n\n${lines}\n\nTotal: ${money(total)}`;
-        state.cart = [];
-        renderCart();
-        window.open(whatsappLink(text), "_blank", "noopener,noreferrer");
-        if (state.adminLogged) await refreshAdmin();
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        state.submittingOrder = false;
-        renderCart();
-      }
-    }
-
-    async function openAdmin() {
-      $("admin-modal").hidden = false;
-      if (isAdminPage) {
-        document.body.setAttribute("data-page", "admin");
-      }
-      try {
-        const session = await fetchJson("/api/admin/session");
-        state.adminLogged = Boolean(session.logged);
-        updateAdminShell();
-        if (state.adminLogged) await refreshAdmin();
-      } catch {
-        state.adminLogged = false;
-        updateAdminShell();
-      }
-    }
-
-    function updateAdminShell() {
-      $("login-shell").hidden = state.adminLogged;
-      $("admin-shell").hidden = !state.adminLogged;
-      $("close-admin").textContent = isAdminPage ? "Voltar ao site" : "Fechar";
-      refreshSaveButton();
-      if (state.adminLogged) renderAdmin();
-    }
-
-    async function refreshAdmin() {
-      const data = await fetchJson("/api/admin/data");
-      Object.assign(state, data);
-      renderPublic();
-      renderAdmin();
-    }
-
-    function renderAdmin() {
-      $("tabs").innerHTML = tabs.map(([id, label]) => `<button class="tab ${state.adminTab === id ? "active" : ""}" data-tab="${id}" type="button">${label}</button>`).join("");
-      $("tabs").querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
-        state.adminTab = button.dataset.tab;
-        renderAdmin();
-      }));
-      const renderers = { dashboard: renderDashboard, products: renderProductAdmin, orders: renderOrdersAdmin, promo: renderPromoAdmin, settings: renderSettingsAdmin };
-      renderers[state.adminTab]();
-    }
-
-    function renderDashboard() {
-      const revenue = state.orders.reduce((sum, item) => sum + Number(item.total || 0), 0);
-      const openOrders = state.orders.filter((item) => item.status !== "Entregue").length;
-      $("admin-content").innerHTML = `
-        <div class="grid metric-grid">
-          ${metric("Faturamento", money(revenue))}
-          ${metric("Pedidos abertos", openOrders)}
-          ${metric("Produtos ativos", state.products.filter((item) => item.active).length)}
-          ${metric("Ticket medio", state.orders.length ? money(revenue / state.orders.length) : money(0))}
-        </div>
-        <div class="card" style="margin-top:18px;"><h4>Pedidos recentes ao vivo</h4><div class="list">${state.orders.slice(0, 8).map(orderCard).join("") || "<p class='message'>Nenhum pedido ainda.</p>"}</div></div>
-      `;
-      bindOrderStatus();
-    }
-
-    function metric(label, value) {
-      return `<div class="card"><p>${label}</p><h4 class="yellow" style="margin-top:8px;">${value}</h4></div>`;
-    }
-
-    function renderProductAdmin() {
-      $("admin-content").innerHTML = `
-        <div class="grid editor-grid">
-          <div class="card">
-            <h4>Cadastrar produto</h4>
-            <div class="field"><label>Nome</label><input id="new-product-name" /></div>
-            <div class="field"><label>Descricao</label><textarea id="new-product-description"></textarea></div>
-            <div class="field"><label>Preco</label><input id="new-product-price" type="number" step="0.01" /></div>
-            <div class="field"><label>Categoria</label><select id="new-product-category"><option>Coxinhas</option><option>Enrolados</option><option>Encomendas</option></select></div>
-            <div class="field"><label>Selo</label><input id="new-product-badge" value="Novo" /></div>
-            <button class="btn primary" id="add-product" type="button" style="margin-top:12px;width:100%;">Adicionar produto</button>
-          </div>
-          <div class="card"><h4>Produtos salvos</h4><div class="list">${state.products.map((product, index) => productEditor(product, index)).join("")}</div></div>
-        </div>
-      `;
-      $("add-product").addEventListener("click", () => {
-        markAdminDirty();
-        state.products.push({
-          name: $("new-product-name").value,
-          description: $("new-product-description").value,
-          price: Number($("new-product-price").value || 0),
-          category: $("new-product-category").value,
-          badge: $("new-product-badge").value,
-          active: 1,
-        });
-        renderProductAdmin();
-      });
-      bindProductInputs();
-    }
-
-    function productEditor(product, index) {
-      return `
-        <div class="admin-item">
-          <strong>${escapeHtml(product.name || "Produto")}</strong>
-          <div class="fields">
-            <input data-product="${index}" data-key="name" value="${escapeAttr(product.name || "")}" />
-            <input data-product="${index}" data-key="price" type="number" step="0.01" value="${Number(product.price || 0)}" />
-            <select data-product="${index}" data-key="category">${["Coxinhas","Enrolados","Encomendas"].map((cat) => `<option ${product.category === cat ? "selected" : ""}>${cat}</option>`).join("")}</select>
-            <input data-product="${index}" data-key="badge" value="${escapeAttr(product.badge || "")}" />
-            <button class="btn danger" data-remove-product="${index}" type="button">Excluir</button>
-          </div>
-          <div class="field"><textarea data-product="${index}" data-key="description">${escapeHtml(product.description || "")}</textarea></div>
-          <label style="display:flex; gap:8px; align-items:center; margin-top:10px;"><input data-product-active="${index}" type="checkbox" ${product.active ? "checked" : ""} /> Ativo</label>
-        </div>
-      `;
-    }
-
-    function bindProductInputs() {
-      $("admin-content").querySelectorAll("[data-product]").forEach((input) => input.addEventListener("input", () => {
-        const product = state.products[Number(input.dataset.product)];
-        markAdminDirty();
-        product[input.dataset.key] = input.dataset.key === "price" ? Number(input.value || 0) : input.value;
-      }));
-      $("admin-content").querySelectorAll("[data-product-active]").forEach((input) => input.addEventListener("change", () => {
-        markAdminDirty();
-        state.products[Number(input.dataset.productActive)].active = input.checked ? 1 : 0;
-      }));
-      $("admin-content").querySelectorAll("[data-remove-product]").forEach((button) => button.addEventListener("click", () => {
-        markAdminDirty();
-        state.products.splice(Number(button.dataset.removeProduct), 1);
-        renderProductAdmin();
-      }));
-    }
-
-    function renderOrdersAdmin() {
-      $("admin-content").innerHTML = `<div class="card"><h4>Pedidos em tempo real</h4><div class="list">${state.orders.map(orderCard).join("") || "<p class='message'>Nenhum pedido ainda.</p>"}</div></div>`;
-      bindOrderStatus();
-    }
-
-    function orderCard(order) {
-      return `
-        <div class="admin-item order-grid">
-          <strong>#${String(order.id).padStart(4, "0")}</strong>
-          <span>${escapeHtml(order.customer)}</span>
-          <span>${escapeHtml(order.itemsLabel || "")}</span>
-          <select data-order="${order.id}">${["Novo","Em preparo","Saiu para entrega","Entregue"].map((status) => `<option ${order.status === status ? "selected" : ""}>${status}</option>`).join("")}</select>
-          <strong class="yellow">${money(order.total)}</strong>
-        </div>
-      `;
-    }
-
-    function bindOrderStatus() {
-      $("admin-content").querySelectorAll("[data-order]").forEach((select) => select.addEventListener("change", async () => {
-        await fetchJson("/api/admin/order-status", { method: "POST", body: JSON.stringify({ id: Number(select.dataset.order), status: select.value }) });
-        await refreshAdmin();
-      }));
-    }
-
-    function renderPromoAdmin() {
-      $("admin-content").innerHTML = `
-        <div class="card">
-          <h4>Promocao</h4>
-          <div class="field"><label>Titulo</label><input data-setting="promoTitle" value="${escapeAttr(state.settings.promoTitle || "")}" /></div>
-          <div class="field"><label>Texto</label><textarea data-setting="promoText">${escapeHtml(state.settings.promoText || "")}</textarea></div>
-          <div class="field"><label>Preco</label><input data-setting="promoPrice" type="number" step="0.01" value="${Number(state.settings.promoPrice || 0)}" /></div>
-        </div>
-      `;
-      bindSettingInputs();
-    }
-
-    function renderSettingsAdmin() {
-      const fields = [
-        ["name", "Nome"], ["slogan", "Slogan"], ["phoneDisplay", "Telefone exibido"], ["whatsapp", "WhatsApp com DDI"], ["address", "Endereco"], ["hours", "Horario"], ["instagram", "Instagram"]
-      ];
-      $("admin-content").innerHTML = `<div class="card"><h4>Dados da loja</h4>${fields.map(([key, label]) => `
-        <div class="field"><label>${label}</label>${key === "address" ? `<textarea data-setting="${key}">${escapeHtml(state.settings[key] || "")}</textarea>` : `<input data-setting="${key}" value="${escapeAttr(state.settings[key] || "")}" />`}</div>
-      `).join("")}</div>`;
-      bindSettingInputs();
-    }
-
-    function bindSettingInputs() {
-      $("admin-content").querySelectorAll("[data-setting]").forEach((input) => input.addEventListener("input", () => {
-        markAdminDirty();
-        state.settings[input.dataset.setting] = input.dataset.setting === "promoPrice" ? Number(input.value || 0) : input.value;
-      }));
-    }
-
-    async function saveAdmin() {
-      $("admin-message").textContent = "Salvando...";
-      $("admin-message").className = "message";
-      try {
-        const data = await fetchJson("/api/admin/save", {
-          method: "POST",
-          body: JSON.stringify({ settings: state.settings, products: state.products, deliveryAreas: [] }),
-        });
-        Object.assign(state, data);
-        state.adminDirty = false;
-        refreshSaveButton();
-        $("admin-message").textContent = "Alteracoes salvas.";
-        $("admin-message").className = "message ok";
-        renderPublic();
-        renderAdmin();
-      } catch (error) {
-        $("admin-message").textContent = error.message;
-        $("admin-message").className = "message err";
-      }
-    }
-
-    async function seedInitialData() {
-      if (!state.adminLogged || state.seedingData) return;
-      state.seedingData = true;
-      $("admin-message").textContent = "Populando dados iniciais...";
-      $("admin-message").className = "message";
-      try {
-        const data = await fetchJson("/api/admin/seed", { method: "POST", body: "{}" });
-        Object.assign(state, data);
-        state.adminDirty = false;
-        refreshSaveButton();
-        $("admin-message").textContent = "Dados iniciais verificados. Itens padrao foram criados apenas se o banco estava vazio.";
-        $("admin-message").className = "message ok";
-        renderPublic();
-        renderAdmin();
-      } catch (error) {
-        $("admin-message").textContent = error.message;
-        $("admin-message").className = "message err";
-      } finally {
-        state.seedingData = false;
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
-    }
-
-    function escapeAttr(value) {
-      return escapeHtml(value).replace(/`/g, "&#096;");
-    }
-
-    $("search").addEventListener("input", (event) => {
-      state.search = event.target.value;
-      renderProducts();
-    });
-    $("mobile-toggle").addEventListener("click", () => {
-      $("menu").classList.toggle("mobile-open");
-      $("actions").classList.toggle("mobile-open");
-    });
-    $("close-admin").addEventListener("click", () => {
-      if (isAdminPage) {
-        window.location.href = "/";
-        return;
-      }
-      $("admin-modal").hidden = true;
-    });
-    $("admin-modal").addEventListener("click", (event) => {
-      if (event.target === $("admin-modal") && !isAdminPage) $("admin-modal").hidden = true;
-    });
-    $("login-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      $("login-message").textContent = "Entrando...";
-      try {
-        await fetchJson("/api/admin/login", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())) });
-        state.adminLogged = true;
-        $("login-message").textContent = "";
-        updateAdminShell();
-        await refreshAdmin();
-      } catch (error) {
-        $("login-message").textContent = error.message;
-        $("login-message").className = "message err";
-      }
-    });
-    $("logout-admin").addEventListener("click", async () => {
-      await fetchJson("/api/admin/logout", { method: "POST", body: "{}" });
-      state.adminLogged = false;
-      refreshSaveButton();
-      updateAdminShell();
-    });
-    $("save-admin").addEventListener("click", saveAdmin);
-    $("save-admin-fab").addEventListener("click", saveAdmin);
-    $("seed-admin").addEventListener("click", seedInitialData);
-    $("refresh-admin").addEventListener("click", refreshAdmin);
-
-    loadPublicData().catch((error) => {
-      state.loadingPublic = false;
-      renderProducts();
-      $("product-message").textContent = error.message;
-      $("product-message").className = "message err";
-    });
-    if (isAdminPage) {
-      openAdmin().catch(() => {});
-    }
-    setInterval(() => {
-      if (state.adminLogged && !state.adminDirty) refreshAdmin().catch(() => {});
-    }, 5000);
-  </script>
 </body>
 </html>
